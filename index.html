@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TrackDrive Profiles</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:   #0d1b2a;
+    --dark:   #111d2b;
+    --panel:  #162032;
+    --border: #1e3048;
+    --teal:   #00c4b4;
+    --teal2:  #007f74;
+    --orange: #ff7b4a;
+    --text:   #c8dcea;
+    --muted:  #4f7190;
+    --white:  #eaf4fb;
+
+    --at-bg:  #0d2a1e;   --at-acc: #22c55e;
+    --arv-bg: #2a1a0d;   --arv-acc: #f97316;
+    --aq-bg:  #1e1a00;   --aq-acc: #eab308;
+    --lh-bg:  #1a1030;   --lh-acc: #a78bfa;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--navy);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--dark);
+    border-bottom: 1px solid var(--border);
+    padding: 28px 48px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo-mark {
+    width: 38px; height: 38px;
+    background: var(--teal);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 16px;
+    color: var(--navy);
+    flex-shrink: 0;
+  }
+  header h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 20px;
+    color: var(--white);
+    letter-spacing: -0.5px;
+  }
+  header h1 span { color: var(--teal); }
+  .header-sub {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    margin-left: auto;
+    letter-spacing: 0.05em;
+  }
+
+  /* ── TABS ── */
+  .tabs {
+    display: flex;
+    gap: 2px;
+    padding: 0 48px;
+    background: var(--dark);
+    border-bottom: 1px solid var(--border);
+  }
+  .tab {
+    padding: 13px 22px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: color 0.2s, border-color 0.2s;
+    user-select: none;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--teal); border-bottom-color: var(--teal); }
+
+  /* ── CONTENT ── */
+  .content { padding: 40px 48px; max-width: 1300px; }
+  .pane { display: none; }
+  .pane.active { display: block; animation: fadeIn 0.2s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ── SECTION TITLE ── */
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 20px;
+  }
+
+  /* ── PROFILE GROUPS ── */
+  .profile-group { margin-bottom: 40px; }
+  .profile-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .profile-pill {
+    padding: 4px 14px;
+    border-radius: 99px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.02em;
+  }
+  .pill-at  { background: var(--at-bg);  color: var(--at-acc);  border: 1px solid var(--at-acc); }
+  .pill-arv { background: var(--arv-bg); color: var(--arv-acc); border: 1px solid var(--arv-acc); }
+  .pill-aq  { background: var(--aq-bg);  color: var(--aq-acc);  border: 1px solid var(--aq-acc); }
+  .pill-lh  { background: var(--lh-bg);  color: var(--lh-acc);  border: 1px solid var(--lh-acc); }
+
+  /* ── TABLE ── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--panel);
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  thead th {
+    background: #0f1e2e;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 11px 18px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  tbody tr { border-bottom: 1px solid var(--border); transition: background 0.15s; }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: rgba(0,196,180,0.04); }
+  td { padding: 13px 18px; vertical-align: top; }
+
+  .agent-name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--white);
+  }
+  .email-cell {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--teal);
+  }
+  .rate-badge {
+    display: inline-block;
+    background: rgba(0,196,180,0.1);
+    border: 1px solid rgba(0,196,180,0.2);
+    color: var(--teal);
+    border-radius: 6px;
+    padding: 2px 10px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+  }
+  .campaign-tag {
+    display: inline-block;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 2px 8px;
+    font-size: 11px;
+    color: var(--text);
+    margin: 2px 3px 2px 0;
+    white-space: nowrap;
+  }
+
+  /* ── DIAL TABLE ── */
+  .phone-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--white);
+    font-weight: 500;
+    letter-spacing: 0.05em;
+  }
+  .platform-badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 5px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+  }
+  .pb-ringba   { background: rgba(0,196,180,0.12); color: var(--teal);   border: 1px solid rgba(0,196,180,0.3); }
+  .pb-retreaver{ background: rgba(255,123,74,0.1);  color: var(--orange); border: 1px solid rgba(255,123,74,0.3); }
+  .url-cell {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    word-break: break-all;
+    max-width: 420px;
+  }
+  .url-cell a { color: #5b9bd5; text-decoration: none; }
+  .url-cell a:hover { color: var(--teal); }
+
+  /* ── BREAK SCHEDULE ── */
+  .break-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+  }
+  .break-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 18px;
+    transition: border-color 0.2s;
+  }
+  .break-card:hover { border-color: var(--teal2); }
+  .break-time {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 20px;
+    color: var(--teal);
+    line-height: 1;
+  }
+  .break-arg {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 3px;
+    margin-bottom: 10px;
+  }
+  .break-agents {
+    font-size: 12px;
+    color: var(--white);
+  }
+  .break-empty {
+    font-size: 11px;
+    color: var(--muted);
+    font-style: italic;
+  }
+
+  /* ── DIRECTORY ── */
+  .dir-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 12px;
+  }
+  .dir-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    transition: border-color 0.2s, transform 0.15s;
+  }
+  .dir-card:hover { border-color: var(--teal2); transform: translateY(-2px); }
+  .dir-name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--white);
+  }
+  .dir-email {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--teal);
+  }
+  .dir-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 4px;
+  }
+  .dir-profile {
+    font-size: 11px;
+    color: var(--muted);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-mark">TD</div>
+  <div>
+    <h1>Track<span>Drive</span> Profiles</h1>
+  </div>
+  <div class="header-sub">A-TEAMWORK OPS · UPDATED APR 2026</div>
+</header>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab('agents')">Agents & Profiles</div>
+  <div class="tab" onclick="showTab('dial')">Dial Numbers & URLs</div>
+  <div class="tab" onclick="showTab('breaks')">Break Schedule</div>
+  <div class="tab" onclick="showTab('directory')">Agent Directory</div>
+</div>
+
+<div class="content">
+
+  <!-- ══ AGENTS & PROFILES ══ -->
+  <div class="pane active" id="pane-agents">
+    <p class="section-label">Active agents by TrackDrive profile</p>
+
+    <!-- A-Teamwork -->
+    <div class="profile-group">
+      <div class="profile-header">
+        <span class="profile-pill pill-at">A-Teamwork</span>
+      </div>
+      <table>
+        <thead><tr><th>Agent</th><th>Campaigns</th><th>Email</th><th>Rate</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><div class="agent-name">Angela C.</div></td>
+            <td><span class="campaign-tag">Auto Insurance</span><span class="campaign-tag">Windows Campaign</span><span class="campaign-tag">ACA</span></td>
+            <td><div class="email-cell">angela@a-teamwork.com</div></td>
+            <td><span class="rate-badge">$550</span></td>
+          </tr>
+          <tr>
+            <td><div class="agent-name">Thomas T.</div></td>
+            <td><span class="campaign-tag">Auto Insurance</span><span class="campaign-tag">Windows Campaign</span><span class="campaign-tag">ACA</span></td>
+            <td><div class="email-cell">tteran@a-teamwork.com</div></td>
+            <td><span class="rate-badge">$450</span></td>
+          </tr>
+          <tr>
+            <td><div class="agent-name">Yarimer P.</div></td>
+            <td><span class="campaign-tag">Auto Insurance</span><span class="campaign-tag">Windows Campaign</span><span class="campaign-tag">ACA Spanish</span><span class="campaign-tag">ACA</span></td>
+            <td><div class="email-cell">yapolinar@a-teamwork.com</div></td>
+            <td><span class="rate-badge">$500</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Ariel Tavena -->
+    <div class="profile-group">
+      <div class="profile-header">
+        <span class="profile-pill pill-arv">Ariel Tavena</span>
+      </div>
+      <table>
+        <thead><tr><th>Agent</th><th>Campaigns</th><th>Email</th><th>Rate</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><div class="agent-name">Rosmary A.</div></td>
+            <td><span class="campaign-tag">Auto Insurance</span><span class="campaign-tag">ACA</span></td>
+            <td><div class="email-cell">ranaya@a-teamwork.com</div></td>
+            <td><span class="rate-badge">$500</span></td>
+          </tr>
+          <tr>
+            <td><div class="agent-name">Naresh Valbuena</div></td>
+            <td><span class="campaign-tag">Auto Insurance</span><span class="campaign-tag">Medicare</span><span class="campaign-tag">Final Expense</span><span class="campaign-tag">ACA</span></td>
+            <td><div class="email-cell">—</div></td>
+            <td><span class="rate-badge" style="opacity:.4">—</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Ariel Quotes LLP -->
+    <div class="profile-group">
+      <div class="profile-header">
+        <span class="profile-pill pill-aq">Ariel Quotes LLP</span>
+      </div>
+      <table>
+        <thead><tr><th>Agent</th><th>Campaigns</th><th>Email</th><th>Rate</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><div class="agent-name">German H.</div></td>
+            <td><span class="campaign-tag">Auto Insurance</span><span class="campaign-tag">ACA</span></td>
+            <td><div class="email-cell">—</div></td>
+            <td><span class="rate-badge" style="opacity:.4">—</span></td>
+          </tr>
+          <tr>
+            <td><div class="agent-name">Yahaira Capellan</div></td>
+            <td><span class="campaign-tag">Auto Insurance</span><span class="campaign-tag">Final Expense</span><span class="campaign-tag">ACA</span></td>
+            <td><div class="email-cell">—</div></td>
+            <td><span class="rate-badge" style="opacity:.4">—</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══ DIAL NUMBERS & URLs ══ -->
+  <div class="pane" id="pane-dial">
+    <p class="section-label">Phone numbers and routing URLs by profile</p>
+
+    <!-- A-Teamwork -->
+    <div class="profile-group">
+      <div class="profile-header"><span class="profile-pill pill-at">A-Teamwork</span></div>
+      <table>
+        <thead><tr><th>Campaign Type</th><th>Phone Number</th><th>Platform</th><th>URL</th></tr></thead>
+        <tbody>
+          <tr><td>Medicare Inbounds</td><td><span class="phone-num">1-844-985-5044</span></td><td><span class="platform-badge pb-ringba">Ringba</span></td><td><div class="url-cell"><a href="https://display.ringba.com/enrich/2441713745127277773?callerid=<<E.164-CALLER-NUMBER>>&key1=value1&key2=value2">display.ringba.com/enrich/2441713745127277773</a></div></td></tr>
+          <tr><td>Final Expense RTB</td><td><span class="phone-num">1-833-889-3587</span></td><td><span class="platform-badge pb-ringba">Ringba</span></td><td><div class="url-cell"><a href="https://display.ringba.com/enrich/2730684708093429543?callerid=<<E.164-CALLER-NUMBER>>&key1=value1&key2=value2">display.ringba.com/enrich/2730684708093429543</a></div></td></tr>
+          <tr><td>ACA Spanish</td><td><span class="phone-num">1-833-661-3319</span></td><td><span class="platform-badge pb-ringba">Ringba</span></td><td><div class="url-cell"><a href="https://display.ringba.com/enrich/2803060796035171332?callerid=<<E.164-CALLER-NUMBER>>&key1=value1&key2=value2">display.ringba.com/enrich/2803060796035171332</a></div></td></tr>
+          <tr><td>Windows (Code 1 — Soleo)</td><td><span class="phone-num">1-833-313-0601</span></td><td><span class="platform-badge pb-retreaver">Retreaver</span></td><td><div class="url-cell">—</div></td></tr>
+          <tr><td>Windows (Code 2 — Ifficient)</td><td><span class="phone-num">1-833-741-2094</span></td><td><span class="platform-badge pb-retreaver">Retreaver</span></td><td><div class="url-cell">—</div></td></tr>
+          <tr><td>Auto Insurance (Code 1)</td><td><span class="phone-num">1-833-631-1580</span></td><td><span class="platform-badge pb-retreaver">Retreaver</span></td><td><div class="url-cell">—</div></td></tr>
+          <tr><td>Auto Insurance (Code 2 — Moja.ai)</td><td><span class="phone-num">1-833-943-4644</span></td><td><span class="platform-badge pb-retreaver">Retreaver</span></td><td><div class="url-cell">—</div></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Ariel Quotes LLP -->
+    <div class="profile-group">
+      <div class="profile-header"><span class="profile-pill pill-aq">Ariel Quotes LLP</span></div>
+      <table>
+        <thead><tr><th>Campaign Type</th><th>Phone Number</th><th>Platform</th><th>URL</th></tr></thead>
+        <tbody>
+          <tr><td>Final Expense RTB</td><td><span class="phone-num">1-833-470-2960</span></td><td><span class="platform-badge pb-ringba">Ringba</span></td><td><div class="url-cell"><a href="https://display.ringba.com/enrich/2811149294873084945?callerid=<<E.164-CALLER-NUMBER>>&key1=value1&key2=value2">display.ringba.com/enrich/2811149294873084945</a></div></td></tr>
+          <tr><td>Auto Insurance</td><td><span class="phone-num">1-833-454-4075</span></td><td><span class="platform-badge pb-retreaver">Retreaver</span></td><td><div class="url-cell">—</div></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Ariel Tavena -->
+    <div class="profile-group">
+      <div class="profile-header"><span class="profile-pill pill-arv">Ariel Tavena</span></div>
+      <table>
+        <thead><tr><th>Campaign Type</th><th>Phone Number</th><th>Platform</th><th>URL</th></tr></thead>
+        <tbody>
+          <tr><td>Medicare Inbound</td><td><span class="phone-num">1-833-470-2645</span></td><td><span class="platform-badge pb-ringba">Ringba</span></td><td><div class="url-cell"><a href="https://display.ringba.com/enrich/2811149658410189897?callerid=<<E.164-CALLER-NUMBER>>&key1=value1&key2=value2">display.ringba.com/enrich/2811149658410189897</a></div></td></tr>
+          <tr><td>Final Expense RTB</td><td><span class="phone-num">1-607-465-0016</span></td><td><span class="platform-badge pb-ringba">Ringba</span></td><td><div class="url-cell"><a href="https://display.ringba.com/enrich/2812608089054774483?callerid=<<E.164-CALLER-NUMBER>>&key1=value1&key2=value2">display.ringba.com/enrich/2812608089054774483</a></div></td></tr>
+          <tr><td>Auto Insurance</td><td><span class="phone-num">1-833-262-3864</span></td><td><span class="platform-badge pb-retreaver">Retreaver</span></td><td><div class="url-cell">—</div></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Red Sky -->
+    <div class="profile-group">
+      <div class="profile-header">
+        <span class="profile-pill" style="background:#1a0d0d;color:#f87171;border:1px solid #f87171;">Red Sky</span>
+      </div>
+      <table>
+        <thead><tr><th>Campaign Type</th><th>Phone Number</th><th>Platform</th><th>URL</th></tr></thead>
+        <tbody>
+          <tr><td>Windows Form</td><td><span class="phone-num">1-844-538-8267</span></td><td><span class="platform-badge pb-retreaver">Retreaver</span></td><td><div class="url-cell">—</div></td></tr>
+          <tr><td>Windows No Form</td><td><span class="phone-num">1-844-628-9033</span></td><td><span class="platform-badge pb-retreaver">Retreaver</span></td><td><div class="url-cell">—</div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══ BREAK SCHEDULE ══ -->
+  <div class="pane" id="pane-breaks">
+    <p class="section-label">Scheduled breaks — all times shown in EST / ARG</p>
+    <div class="break-grid">
+      <div class="break-card">
+        <div class="break-time">12:30 EST</div>
+        <div class="break-arg">1:30 ARG</div>
+        <div class="break-agents">Angela, Naresh</div>
+      </div>
+      <div class="break-card">
+        <div class="break-time">1:00 EST</div>
+        <div class="break-arg">2:00 ARG</div>
+        <div class="break-agents">Fabiana</div>
+      </div>
+      <div class="break-card">
+        <div class="break-time">1:30 EST</div>
+        <div class="break-arg">2:30 ARG</div>
+        <div class="break-agents">Thomas, Rosmary</div>
+      </div>
+      <div class="break-card">
+        <div class="break-time">2:00 EST</div>
+        <div class="break-arg">3:00 ARG</div>
+        <div class="break-agents">Yarimer</div>
+      </div>
+      <div class="break-card">
+        <div class="break-time">2:20 EST</div>
+        <div class="break-arg">3:20 ARG</div>
+        <div class="break-empty">No agents assigned</div>
+      </div>
+      <div class="break-card">
+        <div class="break-time">2:30 EST</div>
+        <div class="break-arg">3:30 ARG</div>
+        <div class="break-empty">No agents assigned</div>
+      </div>
+      <div class="break-card">
+        <div class="break-time">3:00 EST</div>
+        <div class="break-arg">4:00 ARG</div>
+        <div class="break-empty">No agents assigned</div>
+      </div>
+      <div class="break-card">
+        <div class="break-time">3:30 EST</div>
+        <div class="break-arg">4:30 ARG</div>
+        <div class="break-empty">No agents assigned</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ AGENT DIRECTORY ══ -->
+  <div class="pane" id="pane-directory">
+    <p class="section-label">All active agents sorted alphabetically</p>
+    <div class="dir-grid">
+      <div class="dir-card">
+        <div class="dir-name">Angela Cohen</div>
+        <div class="dir-email">angela@a-teamwork.com</div>
+        <div class="dir-meta"><span class="dir-profile">A-Teamwork</span><span class="rate-badge">$550</span></div>
+      </div>
+      <div class="dir-card">
+        <div class="dir-name">German H.</div>
+        <div class="dir-email">—</div>
+        <div class="dir-meta"><span class="dir-profile">Ariel Quotes LLP</span><span class="rate-badge" style="opacity:.4">—</span></div>
+      </div>
+      <div class="dir-card">
+        <div class="dir-name">Naresh Valbuena</div>
+        <div class="dir-email">—</div>
+        <div class="dir-meta"><span class="dir-profile">Ariel Tavena</span><span class="rate-badge" style="opacity:.4">—</span></div>
+      </div>
+      <div class="dir-card">
+        <div class="dir-name">Rosemary Anaya</div>
+        <div class="dir-email">ranaya@a-teamwork.com</div>
+        <div class="dir-meta"><span class="dir-profile">Ariel Tavena</span><span class="rate-badge">$500</span></div>
+      </div>
+      <div class="dir-card">
+        <div class="dir-name">Thomas Teran</div>
+        <div class="dir-email">tteran@a-teamwork.com</div>
+        <div class="dir-meta"><span class="dir-profile">A-Teamwork</span><span class="rate-badge">$450</span></div>
+      </div>
+      <div class="dir-card">
+        <div class="dir-name">Yahaira Capellan</div>
+        <div class="dir-email">—</div>
+        <div class="dir-meta"><span class="dir-profile">Ariel Quotes LLP</span><span class="rate-badge" style="opacity:.4">—</span></div>
+      </div>
+      <div class="dir-card">
+        <div class="dir-name">Yarimer Apolinar</div>
+        <div class="dir-email">yapolinar@a-teamwork.com</div>
+        <div class="dir-meta"><span class="dir-profile">A-Teamwork</span><span class="rate-badge">$500</span></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  function showTab(id) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.pane').forEach(p => p.classList.remove('active'));
+    event.target.classList.add('active');
+    document.getElementById('pane-' + id).classList.add('active');
+  }
+</script>
+</body>
+</html>
