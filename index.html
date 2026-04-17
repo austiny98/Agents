@@ -439,6 +439,19 @@ td { padding: 13px 18px; vertical-align: middle; }
   padding: 2px 9px; font-size: 10px; font-weight: 700;
 }
 .live-count.show { display: inline-block; }
+
+.live-table-wrap { border: 1.5px solid var(--border); border-radius: 16px; overflow: hidden; }
+.live-table { width: 100%; border-collapse: collapse; background: var(--card); }
+.live-table thead th {
+  background: var(--card2); padding: 11px 18px;
+  font-size: 10px; font-weight: 800; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--muted);
+  text-align: left; border-bottom: 1px solid var(--border);
+}
+.live-table tbody tr { border-bottom: 1px solid var(--border); transition: background .12s; }
+.live-table tbody tr:last-child { border-bottom: none; }
+.live-table tbody tr:hover { background: rgba(200,230,60,.03); }
+.live-table td { padding: 13px 18px; vertical-align: middle; }
 </style>
 </head>
 <body>
@@ -551,7 +564,7 @@ td { padding: 13px 18px; vertical-align: middle; }
   <div class="pane" id="pane-live">
     <div class="live-bar">
       <div class="live-indicator">
-        <div class="live-pulse-dot" id="live-pulse"></div>
+        <div class="live-pulse-dot" id="live-pulse-dot"></div>
         <span id="live-status-text" style="color:var(--muted);font-size:12px">Connecting...</span>
       </div>
       <button class="btn btn-secondary" style="padding:7px 14px;font-size:12px" onclick="fetchLive()">↻ Refresh</button>
