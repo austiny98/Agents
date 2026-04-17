@@ -3,566 +3,1444 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TrackDrive Profiles</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<title>TrackDrive</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --navy:   #0d1b2a;
-    --dark:   #111d2b;
-    --panel:  #162032;
-    --border: #1e3048;
-    --teal:   #00c4b4;
-    --teal2:  #007f74;
-    --orange: #ff7b4a;
-    --text:   #c8dcea;
-    --muted:  #4f7190;
-    --white:  #eaf4fb;
+:root {
+  --bg:        #0f1008;
+  --surface:   #161810;
+  --card:      #1c1f12;
+  --card2:     #21251a;
+  --border:    #2a2e1e;
+  --accent:    #c8e63c;
+  --accent2:   #a8c430;
+  --accent-bg: rgba(200,230,60,.1);
+  --text:      #e8ecd8;
+  --muted:     #6b7055;
+  --subtle:    #3a3e2a;
+  --white:     #f0f4e0;
+  --green:     #c8e63c;
+  --orange:    #e8a03c;
+  --red:       #e84c3c;
+  --red-bg:    rgba(232,76,60,.1);
+  --blue:      #6cb4e4;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-font-smoothing: antialiased; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13px;
+  min-height: 100vh;
+}
 
-    --at-bg:  #0d2a1e;   --at-acc: #22c55e;
-    --arv-bg: #2a1a0d;   --arv-acc: #f97316;
-    --aq-bg:  #1e1a00;   --aq-acc: #eab308;
-    --lh-bg:  #1a1030;   --lh-acc: #a78bfa;
-  }
+/* ── HEADER ── */
+header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 32px;
+  height: 62px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.logo-pill {
+  background: var(--accent);
+  border-radius: 12px;
+  width: 36px; height: 36px;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 13px; color: #0f1008;
+  box-shadow: 0 0 20px rgba(200,230,60,.3);
+}
+.logo-name {
+  font-weight: 800; font-size: 16px; color: var(--white);
+  letter-spacing: -.4px;
+}
+.logo-name span { color: var(--accent); }
+.header-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+.saved-pill {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  padding: 4px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.saved-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent); opacity: 0; transition: opacity .3s;
+}
+.saved-dot.show { opacity: 1; box-shadow: 0 0 6px var(--accent); }
 
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+/* ── TABS ── */
+.tab-bar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 32px;
+  display: flex; gap: 2px;
+}
+.tab {
+  padding: 14px 18px;
+  font-size: 12px; font-weight: 700;
+  letter-spacing: .03em;
+  color: var(--muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all .15s;
+  user-select: none;
+}
+.tab:hover { color: var(--text); }
+.tab.active { color: var(--accent); border-bottom-color: var(--accent); }
 
-  body {
-    background: var(--navy);
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
-    line-height: 1.6;
-    min-height: 100vh;
-  }
+/* ── CONTENT ── */
+.content { padding: 28px 32px; max-width: 1360px; }
+.pane { display: none; }
+.pane.active { display: block; animation: fadeUp .2s ease; }
+@keyframes fadeUp { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
 
-  /* ── HEADER ── */
-  header {
-    background: var(--dark);
-    border-bottom: 1px solid var(--border);
-    padding: 28px 48px;
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-  .logo-mark {
-    width: 38px; height: 38px;
-    background: var(--teal);
-    border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    font-family: 'Syne', sans-serif;
-    font-weight: 800;
-    font-size: 16px;
-    color: var(--navy);
-    flex-shrink: 0;
-  }
-  header h1 {
-    font-family: 'Syne', sans-serif;
-    font-weight: 800;
-    font-size: 20px;
-    color: var(--white);
-    letter-spacing: -0.5px;
-  }
-  header h1 span { color: var(--teal); }
-  .header-sub {
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    color: var(--muted);
-    margin-left: auto;
-    letter-spacing: 0.05em;
-  }
+/* ── SECTION LABEL ── */
+.section-label {
+  font-size: 10px; font-weight: 800;
+  letter-spacing: .12em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 14px;
+}
 
-  /* ── TABS ── */
-  .tabs {
-    display: flex;
-    gap: 2px;
-    padding: 0 48px;
-    background: var(--dark);
-    border-bottom: 1px solid var(--border);
-  }
-  .tab {
-    padding: 13px 22px;
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    font-weight: 500;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--muted);
-    cursor: pointer;
-    border-bottom: 2px solid transparent;
-    transition: color 0.2s, border-color 0.2s;
-    user-select: none;
-  }
-  .tab:hover { color: var(--text); }
-  .tab.active { color: var(--teal); border-bottom-color: var(--teal); }
+/* ── BALANCE CARDS ── */
+.balance-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; margin-bottom: 28px; }
+.balance-card {
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  border-radius: 20px;
+  padding: 24px 22px;
+  text-align: center;
+  transition: border-color .3s, box-shadow .3s;
+  position: relative;
+  overflow: hidden;
+}
+.balance-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 60%; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  opacity: 0;
+  transition: opacity .3s;
+}
+.balance-card.ok::before   { opacity: 1; background: linear-gradient(90deg, transparent, var(--accent), transparent); }
+.balance-card.warn::before { opacity: 1; background: linear-gradient(90deg, transparent, var(--orange), transparent); }
+.balance-card.danger::before { opacity: 1; background: linear-gradient(90deg, transparent, var(--red), transparent); }
+.balance-card.ok     { border-color: rgba(200,230,60,.25); }
+.balance-card.warn   { border-color: rgba(232,160,60,.3); animation: warnPulse 2s infinite; }
+.balance-card.danger { border-color: rgba(232,76,60,.3); animation: dangerPulse 1.5s infinite; }
+@keyframes warnPulse   { 0%,100%{box-shadow:0 0 0 rgba(232,160,60,0)}50%{box-shadow:0 0 20px rgba(232,160,60,.15)} }
+@keyframes dangerPulse { 0%,100%{box-shadow:0 0 0 rgba(232,76,60,0)}50%{box-shadow:0 0 20px rgba(232,76,60,.2)} }
+.bal-profile-name {
+  font-size: 10px; font-weight: 800;
+  letter-spacing: .1em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 14px;
+}
+.bal-amount {
+  font-size: 44px; font-weight: 800;
+  letter-spacing: -2px; line-height: 1;
+  margin-bottom: 6px;
+}
+.balance-card.ok     .bal-amount { color: var(--accent); }
+.balance-card.warn   .bal-amount { color: var(--orange); }
+.balance-card.danger .bal-amount { color: var(--red); }
+.balance-card:not(.ok):not(.warn):not(.danger) .bal-amount { color: var(--muted); }
+.bal-label { font-size: 11px; font-weight: 600; color: var(--muted); }
+.bal-alert { margin-top: 10px; font-size: 11px; font-weight: 700; min-height: 18px; }
+.balance-card.warn   .bal-alert { color: var(--orange); }
+.balance-card.danger .bal-alert { color: var(--red); }
+.balance-card.ok     .bal-alert { color: var(--accent); }
 
-  /* ── CONTENT ── */
-  .content { padding: 40px 48px; max-width: 1300px; }
-  .pane { display: none; }
-  .pane.active { display: block; animation: fadeIn 0.2s ease; }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+/* ── STAT ROW ── */
+.stat-row { display: flex; gap: 10px; margin-bottom: 16px; }
+.stat-chip {
+  flex: 1;
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  padding: 14px 18px;
+  display: flex; align-items: center; gap: 12px;
+}
+.stat-chip-num {
+  font-size: 28px; font-weight: 800; line-height: 1;
+}
+.stat-chip-lbl { font-size: 11px; font-weight: 600; color: var(--muted); margin-top: 2px; }
+.chip-oncall  .stat-chip-num { color: var(--orange); }
+.chip-connect .stat-chip-num { color: var(--accent); }
+.chip-offline .stat-chip-num { color: var(--muted); }
+.chip-dot {
+  width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+}
+.chip-oncall  .chip-dot { background: var(--orange); box-shadow: 0 0 8px var(--orange); }
+.chip-connect .chip-dot { background: var(--accent); box-shadow: 0 0 8px var(--accent); animation: glow 2s infinite; }
+.chip-offline .chip-dot { background: var(--subtle); }
+@keyframes glow { 0%,100%{box-shadow:0 0 4px var(--accent)}50%{box-shadow:0 0 12px var(--accent)} }
 
-  /* ── SECTION TITLE ── */
-  .section-label {
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 20px;
-  }
+/* ── LIVE INDICATOR ── */
+.live-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 14px;
+}
+.live-indicator {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 600; color: var(--muted);
+}
+.live-pulse-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--subtle); transition: background .3s;
+}
+.live-pulse-dot.active {
+  background: var(--accent);
+  box-shadow: 0 0 0 3px rgba(200,230,60,.2);
+  animation: livePulse 2s infinite;
+}
+.live-pulse-dot.error { background: var(--red); }
+@keyframes livePulse { 0%,100%{box-shadow:0 0 0 3px rgba(200,230,60,.2)}50%{box-shadow:0 0 0 6px rgba(200,230,60,.05)} }
 
-  /* ── PROFILE GROUPS ── */
-  .profile-group { margin-bottom: 40px; }
-  .profile-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 12px;
-  }
-  .profile-pill {
-    padding: 4px 14px;
-    border-radius: 99px;
-    font-family: 'Syne', sans-serif;
-    font-weight: 700;
-    font-size: 13px;
-    letter-spacing: 0.02em;
-  }
-  .pill-at  { background: var(--at-bg);  color: var(--at-acc);  border: 1px solid var(--at-acc); }
-  .pill-arv { background: var(--arv-bg); color: var(--arv-acc); border: 1px solid var(--arv-acc); }
-  .pill-aq  { background: var(--aq-bg);  color: var(--aq-acc);  border: 1px solid var(--aq-acc); }
-  .pill-lh  { background: var(--lh-bg);  color: var(--lh-acc);  border: 1px solid var(--lh-acc); }
+/* ── TABLE ── */
+.tbl-wrap { border: 1.5px solid var(--border); border-radius: 16px; overflow: hidden; }
+table { width: 100%; border-collapse: collapse; background: var(--card); }
+thead th {
+  background: var(--card2);
+  padding: 11px 18px;
+  font-size: 10px; font-weight: 800;
+  letter-spacing: .1em; text-transform: uppercase;
+  color: var(--muted); text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+tbody tr { border-bottom: 1px solid var(--border); transition: background .12s; }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: rgba(200,230,60,.03); }
+td { padding: 13px 18px; vertical-align: middle; }
+.td-agent-name { font-size: 14px; font-weight: 700; color: var(--white); }
 
-  /* ── TABLE ── */
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    background: var(--panel);
-    border-radius: 12px;
-    overflow: hidden;
-    border: 1px solid var(--border);
-  }
-  thead th {
-    background: #0f1e2e;
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    font-weight: 500;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--muted);
-    padding: 11px 18px;
-    text-align: left;
-    border-bottom: 1px solid var(--border);
-  }
-  tbody tr { border-bottom: 1px solid var(--border); transition: background 0.15s; }
-  tbody tr:last-child { border-bottom: none; }
-  tbody tr:hover { background: rgba(0,196,180,0.04); }
-  td { padding: 13px 18px; vertical-align: top; }
+/* ── STATUS PILLS ── */
+.status-live {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(200,230,60,.1); color: var(--accent);
+  border: 1.5px solid rgba(200,230,60,.25);
+  border-radius: 99px; padding: 4px 12px;
+  font-size: 11px; font-weight: 700;
+}
+.status-oncall {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(232,160,60,.1); color: var(--orange);
+  border: 1.5px solid rgba(232,160,60,.25);
+  border-radius: 99px; padding: 4px 12px;
+  font-size: 11px; font-weight: 700;
+}
+.status-offline {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(107,112,85,.1); color: var(--muted);
+  border: 1.5px solid var(--border);
+  border-radius: 99px; padding: 4px 12px;
+  font-size: 11px; font-weight: 700;
+}
 
-  .agent-name {
-    font-family: 'Syne', sans-serif;
-    font-weight: 700;
-    font-size: 13px;
-    color: var(--white);
-  }
-  .email-cell {
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    color: var(--teal);
-  }
-  .rate-badge {
-    display: inline-block;
-    background: rgba(0,196,180,0.1);
-    border: 1px solid rgba(0,196,180,0.2);
-    color: var(--teal);
-    border-radius: 6px;
-    padding: 2px 10px;
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    font-weight: 500;
-  }
-  .campaign-tag {
-    display: inline-block;
-    background: rgba(255,255,255,0.05);
-    border: 1px solid var(--border);
-    border-radius: 5px;
-    padding: 2px 8px;
-    font-size: 11px;
-    color: var(--text);
-    margin: 2px 3px 2px 0;
-    white-space: nowrap;
-  }
+/* ── PROFILE CHIP ── */
+.profile-chip {
+  display: inline-flex; align-items: center;
+  padding: 4px 12px; border-radius: 99px;
+  font-size: 11px; font-weight: 800;
+  letter-spacing: .02em;
+  border: 1.5px solid;
+}
+.chip-at     { background: rgba(200,230,60,.1);  color: var(--accent); border-color: rgba(200,230,60,.3); }
+.chip-arv    { background: rgba(232,160,60,.1);  color: var(--orange); border-color: rgba(232,160,60,.3); }
+.chip-aq     { background: rgba(100,180,228,.1); color: var(--blue);   border-color: rgba(100,180,228,.3); }
+.chip-custom { background: rgba(255,255,255,.05);color: var(--text);   border-color: var(--border); }
 
-  /* ── DIAL TABLE ── */
-  .phone-num {
-    font-family: 'DM Mono', monospace;
-    font-size: 12px;
-    color: var(--white);
-    font-weight: 500;
-    letter-spacing: 0.05em;
-  }
-  .platform-badge {
-    display: inline-block;
-    padding: 2px 10px;
-    border-radius: 5px;
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    font-weight: 500;
-    letter-spacing: 0.05em;
-  }
-  .pb-ringba   { background: rgba(0,196,180,0.12); color: var(--teal);   border: 1px solid rgba(0,196,180,0.3); }
-  .pb-retreaver{ background: rgba(255,123,74,0.1);  color: var(--orange); border: 1px solid rgba(255,123,74,0.3); }
-  .url-cell {
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    color: var(--muted);
-    word-break: break-all;
-    max-width: 420px;
-  }
-  .url-cell a { color: #5b9bd5; text-decoration: none; }
-  .url-cell a:hover { color: var(--teal); }
+/* ── CAMPAIGN TAG ── */
+.ctag {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: var(--card2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 3px 9px;
+  font-size: 11px; font-weight: 600; color: var(--text);
+}
+.ctag-del { cursor: pointer; color: var(--subtle); font-size: 10px; transition: color .15s; }
+.ctag-del:hover { color: var(--red); }
 
-  /* ── BREAK SCHEDULE ── */
-  .break-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 12px;
-  }
-  .break-card {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 16px 18px;
-    transition: border-color 0.2s;
-  }
-  .break-card:hover { border-color: var(--teal2); }
-  .break-time {
-    font-family: 'Syne', sans-serif;
-    font-weight: 700;
-    font-size: 20px;
-    color: var(--teal);
-    line-height: 1;
-  }
-  .break-arg {
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    color: var(--muted);
-    margin-top: 3px;
-    margin-bottom: 10px;
-  }
-  .break-agents {
-    font-size: 12px;
-    color: var(--white);
-  }
-  .break-empty {
-    font-size: 11px;
-    color: var(--muted);
-    font-style: italic;
-  }
+/* ── AGENT CARDS (Agents tab) ── */
+.profile-section { margin-bottom: 28px; }
+.profile-header-row {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 12px;
+}
+.agent-count-badge {
+  background: var(--card2); border: 1px solid var(--border);
+  border-radius: 99px; padding: 3px 10px;
+  font-size: 11px; font-weight: 700; color: var(--muted);
+}
+.del-profile-btn {
+  margin-left: auto; background: none; border: none;
+  cursor: pointer; color: var(--subtle); font-size: 15px;
+  transition: color .15s; padding: 4px 6px; border-radius: 6px;
+}
+.del-profile-btn:hover { color: var(--red); background: var(--red-bg); }
+.agents-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+.agent-card {
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  border-radius: 18px;
+  padding: 18px 20px;
+  transition: border-color .2s, transform .15s;
+}
+.agent-card:hover { border-color: rgba(200,230,60,.2); transform: translateY(-1px); }
+.agent-card-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 12px; }
+.agent-name { font-size: 15px; font-weight: 700; color: var(--white); }
+.agent-email { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.card-actions { display: flex; gap: 6px; }
+.card-btn {
+  background: none; border: 1.5px solid var(--border);
+  border-radius: 8px; padding: 4px 10px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 11px; font-weight: 700;
+  cursor: pointer; color: var(--muted); transition: all .15s;
+}
+.card-btn.edit:hover   { background: rgba(200,230,60,.1); border-color: rgba(200,230,60,.3); color: var(--accent); }
+.card-btn.remove:hover { background: var(--red-bg); border-color: rgba(232,76,60,.3); color: var(--red); }
+.tags-wrap { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px; }
+.inline-add { display: flex; gap: 5px; align-items: center; }
+.inline-input {
+  background: var(--card2); border: 1.5px solid var(--border);
+  border-radius: 8px; padding: 5px 10px;
+  color: var(--text); font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 11px; outline: none; width: 130px;
+  transition: border-color .15s;
+}
+.inline-input:focus { border-color: var(--accent); }
+.inline-input::placeholder { color: var(--subtle); }
+.add-tiny {
+  background: var(--accent); border: none; border-radius: 8px;
+  cursor: pointer; color: #0f1008; font-size: 14px; font-weight: 900;
+  padding: 4px 9px; transition: opacity .15s;
+}
+.add-tiny:hover { opacity: .8; }
+.empty-profile {
+  padding: 20px; text-align: center;
+  color: var(--muted); font-size: 12px; font-style: italic;
+  background: var(--card); border: 1.5px dashed var(--border); border-radius: 16px;
+}
 
-  /* ── DIRECTORY ── */
-  .dir-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: 12px;
-  }
-  .dir-card {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 16px 18px;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    transition: border-color 0.2s, transform 0.15s;
-  }
-  .dir-card:hover { border-color: var(--teal2); transform: translateY(-2px); }
-  .dir-name {
-    font-family: 'Syne', sans-serif;
-    font-weight: 700;
-    font-size: 14px;
-    color: var(--white);
-  }
-  .dir-email {
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    color: var(--teal);
-  }
-  .dir-meta {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-top: 4px;
-  }
-  .dir-profile {
-    font-size: 11px;
-    color: var(--muted);
-  }
+/* ── TIMELINE (Breaks) ── */
+.timeline { display: flex; flex-direction: column; max-width: 560px; }
+.tl-item { display: flex; }
+.tl-left {
+  width: 110px; flex-shrink: 0;
+  display: flex; flex-direction: column; align-items: flex-end;
+  padding-right: 20px; padding-top: 3px; padding-bottom: 28px;
+}
+.tl-est { font-size: 14px; font-weight: 800; color: var(--white); }
+.tl-arg { font-size: 10px; color: var(--muted); margin-top: 2px; font-weight: 600; }
+.tl-spine { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; width: 18px; }
+.tl-dot {
+  width: 12px; height: 12px; border-radius: 50%;
+  background: var(--accent); flex-shrink: 0; margin-top: 4px;
+  box-shadow: 0 0 8px rgba(200,230,60,.5);
+  border: 2px solid var(--bg); z-index: 1;
+}
+.tl-dot.empty { background: var(--subtle); box-shadow: none; }
+.tl-line { width: 2px; flex: 1; background: var(--border); margin-top: 3px; }
+.tl-item:last-child .tl-line { display: none; }
+.tl-right { flex: 1; padding-left: 18px; padding-bottom: 28px; }
+.tl-card {
+  background: var(--card); border: 1.5px solid var(--border);
+  border-radius: 14px; padding: 11px 14px;
+  display: flex; align-items: center; justify-content: space-between;
+  transition: border-color .2s;
+}
+.tl-card:hover { border-color: rgba(200,230,60,.2); }
+.tl-agents { font-weight: 700; font-size: 13px; color: var(--white); }
+.tl-empty-txt { font-size: 11px; color: var(--subtle); font-style: italic; }
+.tl-break-actions { display: flex; gap: 6px; }
+.bk-edit, .bk-del {
+  background: none; border: 1.5px solid var(--border); border-radius: 8px;
+  cursor: pointer; padding: 3px 9px; font-size: 11px; font-weight: 700;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  color: var(--muted); transition: all .15s;
+}
+.bk-edit:hover { background: rgba(200,230,60,.1); border-color: rgba(200,230,60,.3); color: var(--accent); }
+.bk-del:hover  { background: var(--red-bg); border-color: rgba(232,76,60,.3); color: var(--red); }
+
+/* ── BUTTONS ── */
+.btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 10px 20px; border-radius: 12px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13px; font-weight: 700;
+  cursor: pointer; border: none; transition: all .15s;
+}
+.btn-primary { background: var(--accent); color: #0f1008; }
+.btn-primary:hover { opacity: .88; box-shadow: 0 4px 20px rgba(200,230,60,.3); }
+.btn-secondary { background: var(--card); color: var(--text); border: 1.5px solid var(--border); }
+.btn-secondary:hover { border-color: var(--subtle); }
+.action-row { display: flex; gap: 10px; margin-top: 10px; }
+
+/* ── SKELETON ── */
+.skel-row { height: 50px; background: var(--card); border-radius: 10px; margin-bottom: 6px; animation: shimmer 1.5s infinite; }
+@keyframes shimmer { 0%,100%{opacity:.3}50%{opacity:.6} }
+.live-error {
+  background: var(--card); border: 1.5px solid rgba(232,76,60,.2);
+  border-radius: 14px; padding: 28px; text-align: center;
+  color: var(--red); font-weight: 700;
+}
+.live-error .err-detail { color: var(--muted); font-size: 11px; margin-top: 6px; font-weight: 400; }
+
+/* ── MODAL ── */
+.overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,.85); z-index: 400;
+  align-items: center; justify-content: center;
+  backdrop-filter: blur(8px);
+}
+.overlay.open { display: flex; }
+.modal {
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: 22px; padding: 28px; width: 420px; max-width: 95vw;
+  box-shadow: 0 30px 80px rgba(0,0,0,.7);
+  animation: fadeUp .2s ease;
+}
+.modal-title { font-size: 18px; font-weight: 800; color: var(--white); margin-bottom: 22px; }
+.field { margin-bottom: 14px; }
+.field label {
+  display: block; font-size: 11px; font-weight: 800;
+  color: var(--muted); margin-bottom: 6px;
+  letter-spacing: .06em; text-transform: uppercase;
+}
+.field input, .field select {
+  width: 100%; background: var(--card2); border: 1.5px solid var(--border);
+  border-radius: 12px; padding: 10px 14px; color: var(--white);
+  font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; outline: none;
+  transition: border-color .2s, box-shadow .2s;
+}
+.field input:focus, .field select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(200,230,60,.1);
+}
+.field select option { background: var(--surface); }
+.modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 22px; }
+
+/* ── LIVE COUNT ── */
+.live-count {
+  display: none; background: rgba(200,230,60,.15); color: var(--accent);
+  border: 1px solid rgba(200,230,60,.3); border-radius: 99px;
+  padding: 2px 9px; font-size: 10px; font-weight: 700;
+}
+.live-count.show { display: inline-block; }
 </style>
 </head>
 <body>
 
 <header>
-  <div class="logo-mark">TD</div>
-  <div>
-    <h1>Track<span>Drive</span> Profiles</h1>
+  <div class="logo-pill">TD</div>
+  <div class="logo-name">Track<span>Drive</span></div>
+  <span class="live-count" id="live-count"></span>
+  <div class="header-right">
+    <div class="saved-pill">
+      <div class="saved-dot" id="savedDot"></div>
+      <span id="savedText">Saved</span>
+    </div>
   </div>
-  <div class="header-sub">A-TEAMWORK OPS · UPDATED APR 2026</div>
 </header>
 
-<div class="tabs">
-  <div class="tab active" onclick="showTab('agents')">Agents & Profiles</div>
-  <div class="tab" onclick="showTab('dial')">Dial Numbers & URLs</div>
-  <div class="tab" onclick="showTab('breaks')">Break Schedule</div>
-  <div class="tab" onclick="showTab('directory')">Agent Directory</div>
+<div class="tab-bar">
+  <div class="tab active" data-tab="dashboard">🏠 Dashboard</div>
+  <div class="tab" data-tab="agents">👥 Agents</div>
+  <div class="tab" data-tab="breaks">☕ Breaks</div>
+  <div class="tab" data-tab="live">🟢 Live Status</div>
+  <div class="tab" data-tab="balance">💰 Balances</div>
 </div>
 
 <div class="content">
 
-  <!-- ══ AGENTS & PROFILES ══ -->
-  <div class="pane active" id="pane-agents">
-    <p class="section-label">Active agents by TrackDrive profile</p>
-
-    <!-- A-Teamwork -->
-    <div class="profile-group">
-      <div class="profile-header">
-        <span class="profile-pill pill-at">A-Teamwork</span>
+  <!-- DASHBOARD -->
+  <div class="pane active" id="pane-dashboard">
+    <div class="section-label">💰 Balances</div>
+    <div class="balance-grid">
+      <div class="balance-card" id="dash-bal-at">
+        <div class="bal-profile-name">A-Teamwork</div>
+        <div class="bal-amount" id="dash-bal-at-amount">—</div>
+        <div class="bal-label">Current Balance</div>
+        <div class="bal-alert" id="dash-bal-at-alert"></div>
       </div>
-      <table>
-        <thead><tr><th>Agent</th><th>Campaigns</th><th>Email</th><th>Rate</th></tr></thead>
-        <tbody>
-          <tr>
-            <td><div class="agent-name">Angela C.</div></td>
-            <td><span class="campaign-tag">Auto Insurance</span><span class="campaign-tag">Windows Campaign</span><span class="campaign-tag">ACA</span></td>
-            <td><div class="email-cell">angela@a-teamwork.com</div></td>
-            <td><span class="rate-badge">$550</span></td>
-          </tr>
-          <tr>
-            <td><div class="agent-name">Thomas T.</div></td>
-            <td><span class="campaign-tag">Auto Insurance</span><span class="campaign-tag">Windows Campaign</span><span class="campaign-tag">ACA</span></td>
-            <td><div class="email-cell">tteran@a-teamwork.com</div></td>
-            <td><span class="rate-badge">$450</span></td>
-          </tr>
-          <tr>
-            <td><div class="agent-name">Yarimer P.</div></td>
-            <td><span class="campaign-tag">Auto Insurance</span><span class="campaign-tag">Windows Campaign</span><span class="campaign-tag">ACA Spanish</span><span class="campaign-tag">ACA</span></td>
-            <td><div class="email-cell">yapolinar@a-teamwork.com</div></td>
-            <td><span class="rate-badge">$500</span></td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="balance-card" id="dash-bal-arv">
+        <div class="bal-profile-name">Ariel Tavena</div>
+        <div class="bal-amount" id="dash-bal-arv-amount">—</div>
+        <div class="bal-label">Current Balance</div>
+        <div class="bal-alert" id="dash-bal-arv-alert"></div>
+      </div>
+      <div class="balance-card" id="dash-bal-aq">
+        <div class="bal-profile-name">Ariel Quotes LLP</div>
+        <div class="bal-amount" id="dash-bal-aq-amount">—</div>
+        <div class="bal-label">Current Balance</div>
+        <div class="bal-alert" id="dash-bal-aq-alert"></div>
+      </div>
     </div>
 
-    <!-- Ariel Tavena -->
-    <div class="profile-group">
-      <div class="profile-header">
-        <span class="profile-pill pill-arv">Ariel Tavena</span>
+    <div class="live-bar">
+      <div class="section-label" style="margin-bottom:0">🟢 Live Status</div>
+      <div class="live-indicator">
+        <div class="live-pulse-dot" id="dash-live-pulse"></div>
+        <span id="dash-live-txt">Loading...</span>
       </div>
-      <table>
-        <thead><tr><th>Agent</th><th>Campaigns</th><th>Email</th><th>Rate</th></tr></thead>
-        <tbody>
-          <tr>
-            <td><div class="agent-name">Rosmary A.</div></td>
-            <td><span class="campaign-tag">Auto Insurance</span><span class="campaign-tag">ACA</span></td>
-            <td><div class="email-cell">ranaya@a-teamwork.com</div></td>
-            <td><span class="rate-badge">$500</span></td>
-          </tr>
-          <tr>
-            <td><div class="agent-name">Naresh Valbuena</div></td>
-            <td><span class="campaign-tag">Auto Insurance</span><span class="campaign-tag">Medicare</span><span class="campaign-tag">Final Expense</span><span class="campaign-tag">ACA</span></td>
-            <td><div class="email-cell">—</div></td>
-            <td><span class="rate-badge" style="opacity:.4">—</span></td>
-          </tr>
-        </tbody>
-      </table>
     </div>
 
-    <!-- Ariel Quotes LLP -->
-    <div class="profile-group">
-      <div class="profile-header">
-        <span class="profile-pill pill-aq">Ariel Quotes LLP</span>
+    <div class="stat-row">
+      <div class="stat-chip chip-oncall">
+        <div class="chip-dot"></div>
+        <div>
+          <div class="stat-chip-num" id="dash-cnt-oncall">—</div>
+          <div class="stat-chip-lbl">On Call</div>
+        </div>
       </div>
-      <table>
-        <thead><tr><th>Agent</th><th>Campaigns</th><th>Email</th><th>Rate</th></tr></thead>
-        <tbody>
-          <tr>
-            <td><div class="agent-name">German H.</div></td>
-            <td><span class="campaign-tag">Auto Insurance</span><span class="campaign-tag">ACA</span></td>
-            <td><div class="email-cell">—</div></td>
-            <td><span class="rate-badge" style="opacity:.4">—</span></td>
-          </tr>
-          <tr>
-            <td><div class="agent-name">Yahaira Capellan</div></td>
-            <td><span class="campaign-tag">Auto Insurance</span><span class="campaign-tag">Final Expense</span><span class="campaign-tag">ACA</span></td>
-            <td><div class="email-cell">—</div></td>
-            <td><span class="rate-badge" style="opacity:.4">—</span></td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="stat-chip chip-connect">
+        <div class="chip-dot"></div>
+        <div>
+          <div class="stat-chip-num" id="dash-cnt-connected">—</div>
+          <div class="stat-chip-lbl">Connected</div>
+        </div>
+      </div>
+      <div class="stat-chip chip-offline">
+        <div class="chip-dot"></div>
+        <div>
+          <div class="stat-chip-num" id="dash-cnt-offline">—</div>
+          <div class="stat-chip-lbl">Offline</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="dash-live-container">
+      <div class="skel-row"></div><div class="skel-row"></div><div class="skel-row"></div>
+    </div>
+
+    <div style="margin-top:12px;font-size:11px;color:var(--muted);font-weight:600">
+      ⚠️ Alert threshold $25 &nbsp;·&nbsp; 🔄 Refreshes every 15s
     </div>
   </div>
 
-  <!-- ══ DIAL NUMBERS & URLs ══ -->
-  <div class="pane" id="pane-dial">
-    <p class="section-label">Phone numbers and routing URLs by profile</p>
-
-    <!-- A-Teamwork -->
-    <div class="profile-group">
-      <div class="profile-header"><span class="profile-pill pill-at">A-Teamwork</span></div>
-      <table>
-        <thead><tr><th>Campaign Type</th><th>Phone Number</th><th>Platform</th><th>URL</th></tr></thead>
-        <tbody>
-          <tr><td>Medicare Inbounds</td><td><span class="phone-num">1-844-985-5044</span></td><td><span class="platform-badge pb-ringba">Ringba</span></td><td><div class="url-cell"><a href="https://display.ringba.com/enrich/2441713745127277773?callerid=<<E.164-CALLER-NUMBER>>&key1=value1&key2=value2">display.ringba.com/enrich/2441713745127277773</a></div></td></tr>
-          <tr><td>Final Expense RTB</td><td><span class="phone-num">1-833-889-3587</span></td><td><span class="platform-badge pb-ringba">Ringba</span></td><td><div class="url-cell"><a href="https://display.ringba.com/enrich/2730684708093429543?callerid=<<E.164-CALLER-NUMBER>>&key1=value1&key2=value2">display.ringba.com/enrich/2730684708093429543</a></div></td></tr>
-          <tr><td>ACA Spanish</td><td><span class="phone-num">1-833-661-3319</span></td><td><span class="platform-badge pb-ringba">Ringba</span></td><td><div class="url-cell"><a href="https://display.ringba.com/enrich/2803060796035171332?callerid=<<E.164-CALLER-NUMBER>>&key1=value1&key2=value2">display.ringba.com/enrich/2803060796035171332</a></div></td></tr>
-          <tr><td>Windows (Code 1 — Soleo)</td><td><span class="phone-num">1-833-313-0601</span></td><td><span class="platform-badge pb-retreaver">Retreaver</span></td><td><div class="url-cell">—</div></td></tr>
-          <tr><td>Windows (Code 2 — Ifficient)</td><td><span class="phone-num">1-833-741-2094</span></td><td><span class="platform-badge pb-retreaver">Retreaver</span></td><td><div class="url-cell">—</div></td></tr>
-          <tr><td>Auto Insurance (Code 1)</td><td><span class="phone-num">1-833-631-1580</span></td><td><span class="platform-badge pb-retreaver">Retreaver</span></td><td><div class="url-cell">—</div></td></tr>
-          <tr><td>Auto Insurance (Code 2 — Moja.ai)</td><td><span class="phone-num">1-833-943-4644</span></td><td><span class="platform-badge pb-retreaver">Retreaver</span></td><td><div class="url-cell">—</div></td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Ariel Quotes LLP -->
-    <div class="profile-group">
-      <div class="profile-header"><span class="profile-pill pill-aq">Ariel Quotes LLP</span></div>
-      <table>
-        <thead><tr><th>Campaign Type</th><th>Phone Number</th><th>Platform</th><th>URL</th></tr></thead>
-        <tbody>
-          <tr><td>Final Expense RTB</td><td><span class="phone-num">1-833-470-2960</span></td><td><span class="platform-badge pb-ringba">Ringba</span></td><td><div class="url-cell"><a href="https://display.ringba.com/enrich/2811149294873084945?callerid=<<E.164-CALLER-NUMBER>>&key1=value1&key2=value2">display.ringba.com/enrich/2811149294873084945</a></div></td></tr>
-          <tr><td>Auto Insurance</td><td><span class="phone-num">1-833-454-4075</span></td><td><span class="platform-badge pb-retreaver">Retreaver</span></td><td><div class="url-cell">—</div></td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Ariel Tavena -->
-    <div class="profile-group">
-      <div class="profile-header"><span class="profile-pill pill-arv">Ariel Tavena</span></div>
-      <table>
-        <thead><tr><th>Campaign Type</th><th>Phone Number</th><th>Platform</th><th>URL</th></tr></thead>
-        <tbody>
-          <tr><td>Medicare Inbound</td><td><span class="phone-num">1-833-470-2645</span></td><td><span class="platform-badge pb-ringba">Ringba</span></td><td><div class="url-cell"><a href="https://display.ringba.com/enrich/2811149658410189897?callerid=<<E.164-CALLER-NUMBER>>&key1=value1&key2=value2">display.ringba.com/enrich/2811149658410189897</a></div></td></tr>
-          <tr><td>Final Expense RTB</td><td><span class="phone-num">1-607-465-0016</span></td><td><span class="platform-badge pb-ringba">Ringba</span></td><td><div class="url-cell"><a href="https://display.ringba.com/enrich/2812608089054774483?callerid=<<E.164-CALLER-NUMBER>>&key1=value1&key2=value2">display.ringba.com/enrich/2812608089054774483</a></div></td></tr>
-          <tr><td>Auto Insurance</td><td><span class="phone-num">1-833-262-3864</span></td><td><span class="platform-badge pb-retreaver">Retreaver</span></td><td><div class="url-cell">—</div></td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Red Sky -->
-    <div class="profile-group">
-      <div class="profile-header">
-        <span class="profile-pill" style="background:#1a0d0d;color:#f87171;border:1px solid #f87171;">Red Sky</span>
-      </div>
-      <table>
-        <thead><tr><th>Campaign Type</th><th>Phone Number</th><th>Platform</th><th>URL</th></tr></thead>
-        <tbody>
-          <tr><td>Windows Form</td><td><span class="phone-num">1-844-538-8267</span></td><td><span class="platform-badge pb-retreaver">Retreaver</span></td><td><div class="url-cell">—</div></td></tr>
-          <tr><td>Windows No Form</td><td><span class="phone-num">1-844-628-9033</span></td><td><span class="platform-badge pb-retreaver">Retreaver</span></td><td><div class="url-cell">—</div></td></tr>
-        </tbody>
-      </table>
+  <!-- AGENTS -->
+  <div class="pane" id="pane-agents">
+    <div id="profiles-container"></div>
+    <div class="action-row">
+      <button class="btn btn-primary" onclick="openAddAgent()">＋ Add Agent</button>
+      <button class="btn btn-secondary" onclick="openAddProfile()">＋ New Profile</button>
     </div>
   </div>
 
-  <!-- ══ BREAK SCHEDULE ══ -->
+  <!-- BREAKS -->
   <div class="pane" id="pane-breaks">
-    <p class="section-label">Scheduled breaks — all times shown in EST / ARG</p>
-    <div class="break-grid">
-      <div class="break-card">
-        <div class="break-time">12:30 EST</div>
-        <div class="break-arg">1:30 ARG</div>
-        <div class="break-agents">Angela, Naresh</div>
-      </div>
-      <div class="break-card">
-        <div class="break-time">1:00 EST</div>
-        <div class="break-arg">2:00 ARG</div>
-        <div class="break-agents">Fabiana</div>
-      </div>
-      <div class="break-card">
-        <div class="break-time">1:30 EST</div>
-        <div class="break-arg">2:30 ARG</div>
-        <div class="break-agents">Thomas, Rosmary</div>
-      </div>
-      <div class="break-card">
-        <div class="break-time">2:00 EST</div>
-        <div class="break-arg">3:00 ARG</div>
-        <div class="break-agents">Yarimer</div>
-      </div>
-      <div class="break-card">
-        <div class="break-time">2:20 EST</div>
-        <div class="break-arg">3:20 ARG</div>
-        <div class="break-empty">No agents assigned</div>
-      </div>
-      <div class="break-card">
-        <div class="break-time">2:30 EST</div>
-        <div class="break-arg">3:30 ARG</div>
-        <div class="break-empty">No agents assigned</div>
-      </div>
-      <div class="break-card">
-        <div class="break-time">3:00 EST</div>
-        <div class="break-arg">4:00 ARG</div>
-        <div class="break-empty">No agents assigned</div>
-      </div>
-      <div class="break-card">
-        <div class="break-time">3:30 EST</div>
-        <div class="break-arg">4:30 ARG</div>
-        <div class="break-empty">No agents assigned</div>
-      </div>
+    <div class="timeline" id="breaks-container"></div>
+    <div class="action-row" style="margin-top:16px">
+      <button class="btn btn-primary" onclick="openAddBreak()">＋ Add Break Slot</button>
     </div>
   </div>
 
-  <!-- ══ AGENT DIRECTORY ══ -->
-  <div class="pane" id="pane-directory">
-    <p class="section-label">All active agents sorted alphabetically</p>
-    <div class="dir-grid">
-      <div class="dir-card">
-        <div class="dir-name">Angela Cohen</div>
-        <div class="dir-email">angela@a-teamwork.com</div>
-        <div class="dir-meta"><span class="dir-profile">A-Teamwork</span><span class="rate-badge">$550</span></div>
+  <!-- LIVE STATUS -->
+  <div class="pane" id="pane-live">
+    <div class="live-bar">
+      <div class="live-indicator">
+        <div class="live-pulse-dot" id="live-pulse"></div>
+        <span id="live-status-text" style="color:var(--muted);font-size:12px">Connecting...</span>
       </div>
-      <div class="dir-card">
-        <div class="dir-name">German H.</div>
-        <div class="dir-email">—</div>
-        <div class="dir-meta"><span class="dir-profile">Ariel Quotes LLP</span><span class="rate-badge" style="opacity:.4">—</span></div>
+      <button class="btn btn-secondary" style="padding:7px 14px;font-size:12px" onclick="fetchLive()">↻ Refresh</button>
+    </div>
+    <div class="stat-row" style="margin-bottom:14px">
+      <div class="stat-chip chip-oncall">
+        <div class="chip-dot"></div>
+        <div><div class="stat-chip-num" id="cnt-oncall">—</div><div class="stat-chip-lbl">On Call</div></div>
       </div>
-      <div class="dir-card">
-        <div class="dir-name">Naresh Valbuena</div>
-        <div class="dir-email">—</div>
-        <div class="dir-meta"><span class="dir-profile">Ariel Tavena</span><span class="rate-badge" style="opacity:.4">—</span></div>
+      <div class="stat-chip chip-connect">
+        <div class="chip-dot"></div>
+        <div><div class="stat-chip-num" id="cnt-connected">—</div><div class="stat-chip-lbl">Connected</div></div>
       </div>
-      <div class="dir-card">
-        <div class="dir-name">Rosemary Anaya</div>
-        <div class="dir-email">ranaya@a-teamwork.com</div>
-        <div class="dir-meta"><span class="dir-profile">Ariel Tavena</span><span class="rate-badge">$500</span></div>
+      <div class="stat-chip chip-offline">
+        <div class="chip-dot"></div>
+        <div><div class="stat-chip-num" id="cnt-offline">—</div><div class="stat-chip-lbl">Offline</div></div>
       </div>
-      <div class="dir-card">
-        <div class="dir-name">Thomas Teran</div>
-        <div class="dir-email">tteran@a-teamwork.com</div>
-        <div class="dir-meta"><span class="dir-profile">A-Teamwork</span><span class="rate-badge">$450</span></div>
+    </div>
+    <div id="live-container"></div>
+    <div style="margin-top:14px;font-size:11px;color:var(--muted);font-weight:600">
+      Auto-refreshes every 15s · A-Teamwork · Ariel Tavena · Ariel Quotes LLP
+    </div>
+  </div>
+
+  <!-- BALANCE -->
+  <div class="pane" id="pane-balance">
+    <div class="live-bar">
+      <div class="live-indicator">
+        <div class="live-pulse-dot" id="balance-pulse"></div>
+        <span id="balance-status-text" style="color:var(--muted);font-size:12px">Loading...</span>
       </div>
-      <div class="dir-card">
-        <div class="dir-name">Yahaira Capellan</div>
-        <div class="dir-email">—</div>
-        <div class="dir-meta"><span class="dir-profile">Ariel Quotes LLP</span><span class="rate-badge" style="opacity:.4">—</span></div>
+      <button class="btn btn-secondary" style="padding:7px 14px;font-size:12px" onclick="fetchBalances()">↻ Refresh</button>
+    </div>
+    <div class="balance-grid">
+      <div class="balance-card" id="bal-at">
+        <div class="bal-profile-name">A-Teamwork</div>
+        <div class="bal-amount" id="bal-at-amount">—</div>
+        <div class="bal-label">Current Balance</div>
+        <div class="bal-alert" id="bal-at-alert"></div>
       </div>
-      <div class="dir-card">
-        <div class="dir-name">Yarimer Apolinar</div>
-        <div class="dir-email">yapolinar@a-teamwork.com</div>
-        <div class="dir-meta"><span class="dir-profile">A-Teamwork</span><span class="rate-badge">$500</span></div>
+      <div class="balance-card" id="bal-arv">
+        <div class="bal-profile-name">Ariel Tavena</div>
+        <div class="bal-amount" id="bal-arv-amount">—</div>
+        <div class="bal-label">Current Balance</div>
+        <div class="bal-alert" id="bal-arv-alert"></div>
       </div>
+      <div class="balance-card" id="bal-aq">
+        <div class="bal-profile-name">Ariel Quotes LLP</div>
+        <div class="bal-amount" id="bal-aq-amount">—</div>
+        <div class="bal-label">Current Balance</div>
+        <div class="bal-alert" id="bal-aq-alert"></div>
+      </div>
+    </div>
+    <div style="margin-top:12px;font-size:11px;color:var(--muted);font-weight:600">
+      ⚠️ Alert threshold $25 · auto-refreshes every 30s
     </div>
   </div>
 
 </div>
 
+<!-- MODAL: Edit Agent -->
+<div class="overlay" id="modal-edit-agent">
+  <div class="modal">
+    <div class="modal-title">Edit Agent</div>
+    <div class="field"><label>Name</label><input id="e-aname" /></div>
+    <div class="field"><label>Profile</label><select id="e-aprofile"></select></div>
+    <div class="field"><label>Campaigns</label>
+      <div id="e-camps-tags" style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px;min-height:24px"></div>
+      <div style="display:flex;gap:6px">
+        <input id="e-camp-input" placeholder="Add campaign..." style="flex:1;background:var(--card2);border:1.5px solid var(--border);border-radius:12px;padding:8px 12px;color:var(--white);font-family:Plus Jakarta Sans,sans-serif;font-size:13px;outline:none" onkeydown="if(event.key==='Enter'){event.preventDefault();addEditCamp()}">
+        <button class="btn btn-secondary" onclick="addEditCamp()" style="padding:7px 12px">＋</button>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-edit-agent')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveEditAgent()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Add Agent -->
+<div class="overlay" id="modal-agent">
+  <div class="modal">
+    <div class="modal-title">Add Agent</div>
+    <div class="field"><label>Name</label><input id="i-aname" placeholder="e.g. Angela C." /></div>
+    <div class="field"><label>Email</label><input id="i-aemail" placeholder="agent@a-teamwork.com" /></div>
+    <div class="field"><label>Profile</label><select id="i-aprofile"></select></div>
+    <div class="field"><label>Campaigns (comma separated)</label><input id="i-acamps" placeholder="Auto Insurance, ACA" /></div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-agent')">Cancel</button>
+      <button class="btn btn-primary" onclick="addAgent()">Add</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Add Profile -->
+<div class="overlay" id="modal-profile">
+  <div class="modal">
+    <div class="modal-title">New Profile</div>
+    <div class="field"><label>Profile Name</label><input id="i-pname" placeholder="e.g. Legally Highest" /></div>
+    <div class="field"><label>Color</label>
+      <select id="i-pcolor">
+        <option value="yellow">Yellow/Green</option>
+        <option value="orange">Orange</option>
+        <option value="blue">Blue</option>
+        <option value="green">Green</option>
+        <option value="purple">Purple</option>
+      </select>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-profile')">Cancel</button>
+      <button class="btn btn-primary" onclick="addProfile()">Create</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Add Break -->
+<div class="overlay" id="modal-break">
+  <div class="modal">
+    <div class="modal-title">Add Break Slot</div>
+    <div class="field"><label>Time (EST)</label><input id="i-best" placeholder="12:30 EST" /></div>
+    <div class="field"><label>Time (ARG)</label><input id="i-barg" placeholder="1:30 ARG" /></div>
+    <div class="field"><label>Agents on break</label><input id="i-bagents" placeholder="Angela, Naresh" /></div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-break')">Cancel</button>
+      <button class="btn btn-primary" onclick="addBreak()">Add</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Edit Break -->
+<div class="overlay" id="modal-edit-break">
+  <div class="modal">
+    <div class="modal-title">Edit Break Slot</div>
+    <div class="field"><label>Time (EST)</label><input id="eb-est" /></div>
+    <div class="field"><label>Time (ARG)</label><input id="eb-arg" /></div>
+    <div class="field"><label>Agents on break</label><input id="eb-agents" /></div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-edit-break')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveEditBreak()">Save</button>
+    </div>
+  </div>
+</div>
+
 <script>
-  function showTab(id) {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.pane').forEach(p => p.classList.remove('active'));
-    event.target.classList.add('active');
-    document.getElementById('pane-' + id).classList.add('active');
+
+
+const COLORS = {
+  yellow: {bg:'rgba(200,230,60,.1)',  text:'var(--accent)', border:'rgba(200,230,60,.3)', chip:'chip-at'},
+  orange: {bg:'rgba(232,160,60,.1)', text:'var(--orange)',  border:'rgba(232,160,60,.3)', chip:'chip-arv'},
+  blue:   {bg:'rgba(100,180,228,.1)',text:'var(--blue)',    border:'rgba(100,180,228,.3)',chip:'chip-aq'},
+  green:  {bg:'rgba(200,230,60,.1)', text:'var(--accent)', border:'rgba(200,230,60,.3)', chip:'chip-at'},
+  purple: {bg:'rgba(180,140,240,.1)',text:'#b48cf0',        border:'rgba(180,140,240,.3)',chip:'chip-custom'},
+  pink:   {bg:'rgba(240,120,180,.1)',text:'#f078b4',        border:'rgba(240,120,180,.3)',chip:'chip-custom'},
+  red:    {bg:'var(--red-bg)',        text:'var(--red)',    border:'rgba(232,76,60,.3)',  chip:'chip-custom'},
+};
+
+const DEFAULTS = {
+  profiles: [
+    {id:'at',  name:'A-Teamwork',       color:'green'},
+    {id:'arv', name:'Ariel Tavena',     color:'orange'},
+    {id:'aq',  name:'Ariel Quotes LLP', color:'yellow'},
+  ],
+  agents: [
+    {id:1, name:'Angela C.',        profile:'at',  email:'angela@a-teamwork.com',     campaigns:['Auto Insurance']},
+    {id:2, name:'Thomas T.',        profile:'at',  email:'tteran@a-teamwork.com',     campaigns:['Auto Insurance']},
+    {id:3, name:'Yarimer P.',       profile:'at',  email:'yapolinar@a-teamwork.com',  campaigns:['Auto Insurance','Ride with Insurance']},
+    {id:4, name:'Rosmary A.',       profile:'at',  email:'ranaya@a-teamwork.com',     campaigns:['Auto Insurance','Oak Street Health']},
+    {id:5, name:'Michael Morales',  profile:'arv', email:'mmorales@a-teamwork.com',   campaigns:['Auto Insurance']},
+    {id:6, name:'Samuel Ramos',     profile:'arv', email:'sramos@a-teamwork.com',     campaigns:['Auto Insurance']},
+    {id:7, name:'Naresh Valbuena',  profile:'arv', email:'nvalbuena@a-teamwork.com',  campaigns:['Auto Insurance']},
+    {id:8, name:'Gianni',           profile:'aq',  email:'gascame@a-teamwork.com',    campaigns:['Auto Insurance']},
+    {id:9, name:'Martin Rodriguez', profile:'aq',  email:'mrodriguez@a-teamwork.com', campaigns:['Auto Insurance']},
+  ],
+  breaks: [
+    {id:1, est:'12:30 EST', arg:'1:30 ARG',  agents:'Angela, Naresh'},
+    {id:2, est:'1:00 EST',  arg:'2:00 ARG',  agents:''},
+    {id:3, est:'1:30 EST',  arg:'2:30 ARG',  agents:'Thomas, Ros'},
+    {id:4, est:'2:00 EST',  arg:'3:00 ARG',  agents:'Yarimer'},
+    {id:5, est:'2:20 EST',  arg:'3:20 ARG',  agents:''},
+    {id:6, est:'2:30 EST',  arg:'3:30 ARG',  agents:''},
+    {id:7, est:'3:00 EST',  arg:'4:00 ARG',  agents:''},
+    {id:8, est:'3:30 EST',  arg:'4:30 ARG',  agents:''},
+  ]
+};
+
+let state = JSON.parse(localStorage.getItem('td4_state') || 'null') || JSON.parse(JSON.stringify(DEFAULTS));
+let nid = Math.max(100, ...state.agents.map(a=>a.id), ...state.breaks.map(b=>b.id)) + 1;
+
+// Migrate: add emails to existing agents if missing
+var EMAIL_MAP = {
+  'angela c.':        'angela@a-teamwork.com',
+  'thomas t.':        'tteran@a-teamwork.com',
+  'yarimer p.':       'yapolinar@a-teamwork.com',
+  'rosmary a.':       'ranaya@a-teamwork.com',
+  'michael morales':  'mmorales@a-teamwork.com',
+  'samuel ramos':     'sramos@a-teamwork.com',
+  'gianni':           'gascame@a-teamwork.com',
+  'martin rodriguez': 'mrodriguez@a-teamwork.com',
+};
+// Fix profile assignments if using old saved state
+state.agents.forEach(function(a) {
+  if ((a.name === 'Gianni' || a.name === 'Martin Rodriguez') && a.profile === 'lh') {
+    a.profile = 'aq'; migrated = true;
   }
+});
+// Remove Legally Highest profile if present
+var lhIndex = state.profiles.findIndex(function(p) { return p.id === 'lh'; });
+if (lhIndex !== -1) { state.profiles.splice(lhIndex, 1); migrated = true; }
+var migrated = false;
+state.agents.forEach(function(a) {
+  if (!a.email) {
+    var key = a.name.toLowerCase();
+    if (EMAIL_MAP[key]) { a.email = EMAIL_MAP[key]; migrated = true; }
+  }
+});
+if (migrated) localStorage.setItem('td4_state', JSON.stringify(state));
+
+function save() {
+  localStorage.setItem('td4_state', JSON.stringify(state));
+  const dot = document.getElementById('savedDot');
+  const txt = document.getElementById('savedText');
+  dot.classList.add('show');
+  txt.textContent = 'Saved just now';
+  clearTimeout(dot._t);
+  dot._t = setTimeout(() => { dot.classList.remove('show'); txt.textContent = 'All changes saved'; }, 2000);
+}
+
+let editingAgentId = null;
+let editCamps = [];
+
+function openEditAgent(id) {
+  const agent = state.agents.find(a => a.id === id);
+  if (!agent) return;
+  editingAgentId = id;
+  editCamps = [...agent.campaigns];
+
+  document.getElementById('e-aname').value = agent.name;
+
+  const sel = document.getElementById('e-aprofile');
+  sel.innerHTML = state.profiles.map(p =>
+    `<option value="${p.id}" ${p.id === agent.profile ? 'selected' : ''}>${p.name}</option>`
+  ).join('');
+
+  document.getElementById('e-camp-input').value = '';
+  renderEditCamps();
+  openModal('modal-edit-agent');
+  setTimeout(() => document.getElementById('e-aname').focus(), 100);
+}
+
+function renderEditCamps() {
+  const el = document.getElementById('e-camps-tags');
+  el.innerHTML = editCamps.map((c, i) =>
+    `<span class="ctag">${c}<span class="ctag-del" onclick="removeEditCamp(${i})">✕</span></span>`
+  ).join('');
+}
+
+function removeEditCamp(idx) {
+  editCamps.splice(idx, 1);
+  renderEditCamps();
+}
+
+function addEditCamp() {
+  const inp = document.getElementById('e-camp-input');
+  const v = inp.value.trim(); if (!v) return;
+  editCamps.push(v);
+  inp.value = '';
+  renderEditCamps();
+}
+
+function saveEditAgent() {
+  const name = document.getElementById('e-aname').value.trim();
+  const profile = document.getElementById('e-aprofile').value;
+  if (!name) { alert('Enter a name'); return; }
+  const agent = state.agents.find(a => a.id === editingAgentId);
+  agent.name = name;
+  agent.profile = profile;
+  agent.campaigns = [...editCamps];
+  save(); closeModal('modal-edit-agent'); renderAgents();
+}
+
+function renderAgents() {
+  const c = document.getElementById('profiles-container');
+  c.innerHTML = '';
+  state.profiles.forEach(function(p) {
+    var col = COLORS[p.color] || COLORS.yellow;
+    var agents = state.agents.filter(function(a) { return a.profile === p.id; });
+    var section = document.createElement('div');
+    section.className = 'profile-section';
+    section.innerHTML =
+      '<div class="profile-header-row">' +
+        '<span class="profile-chip ' + (col.chip || 'chip-custom') + '" style="background:' + col.bg + ';color:' + col.text + ';border-color:' + col.border + '">' + p.name + '</span>' +
+        '<span class="agent-count-badge">' + agents.length + ' agent' + (agents.length !== 1 ? 's' : '') + '</span>' +
+        '<button class="del-profile-btn" onclick="deleteProfile(\'' + p.id + '\')" title="Remove">✕</button>' +
+      '</div>' +
+      '<div class="agents-grid" id="grid-' + p.id + '"></div>';
+    c.appendChild(section);
+
+    var grid = document.getElementById('grid-' + p.id);
+    if (!agents.length) {
+      grid.innerHTML = '<div class="empty-profile">No agents — add one below</div>';
+    }
+    agents.forEach(function(a) {
+      var card = document.createElement('div');
+      card.className = 'agent-card';
+      card.innerHTML =
+        '<div class="agent-card-top">' +
+          '<div>' +
+            '<div class="agent-name">' + a.name + '</div>' +
+            '<div class="agent-email">' + (a.email || '') + '</div>' +
+          '</div>' +
+          '<div class="card-actions">' +
+            '<button class="card-btn edit" onclick="openEditAgent(' + a.id + ')">Edit</button>' +
+            '<button class="card-btn remove" onclick="deleteAgent(' + a.id + ')">✕</button>' +
+          '</div>' +
+        '</div>' +
+        '<div class="tags-wrap" id="tags-' + a.id + '"></div>' +
+        '<div class="inline-add">' +
+          '<input class="inline-input" id="ci-' + a.id + '" data-agentid="' + a.id + '" placeholder="Add campaign...">' +
+          '<button class="add-tiny" onclick="addCampaign(' + a.id + ')">＋</button>' +
+        '</div>';
+      grid.appendChild(card);
+      renderTags(a);
+      var inp = card.querySelector('.inline-input');
+      if (inp) {
+        inp.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter') addCampaign(a.id);
+        });
+      }
+    });
+  });
+}
+
+function renderTags(agent) {
+  var el = document.getElementById('tags-' + agent.id);
+  if (!el) return;
+  el.innerHTML = agent.campaigns.map(function(c, i) {
+    return '<span class="ctag">' + c + '<span class="ctag-del" onclick="removeCamp(' + agent.id + ',' + i + ')">✕</span></span>';
+  }).join('');
+}
+
+function renderBreaks() {
+  const c = document.getElementById('breaks-container');
+  c.innerHTML = '';
+  state.breaks.forEach(b => {
+    const hasAgents = b.agents && b.agents.trim();
+    const item = document.createElement('div');
+    item.className = 'tl-item';
+    item.innerHTML = `
+      <div class="tl-left">
+        <div class="tl-est">${b.est}</div>
+        <div class="tl-arg">${b.arg}</div>
+      </div>
+      <div class="tl-spine">
+        <div class="tl-dot ${hasAgents ? '' : 'empty'}"></div>
+        <div class="tl-line"></div>
+      </div>
+      <div class="tl-right">
+        <div class="tl-card">
+          ${hasAgents
+            ? `<span class="tl-agents">${b.agents}</span>`
+            : `<span class="tl-empty-txt">No agents assigned</span>`}
+          <div class="tl-break-actions">
+            <button class="bk-edit" onclick="openEditBreak(${b.id})">Edit</button>
+            <button class="bk-del" onclick="deleteBreak(${b.id})">✕</button>
+          </div>
+        </div>
+      </div>`;
+    c.appendChild(item);
+  });
+}
+
+function deleteAgent(id) {
+  if (!confirm('Remove this agent?')) return;
+  state.agents = state.agents.filter(a => a.id !== id);
+  save(); renderAgents();
+}
+function deleteProfile(id) {
+  const has = state.agents.some(a => a.profile === id);
+  if (has && !confirm('This will also remove all agents in this profile. Continue?')) return;
+  state.profiles = state.profiles.filter(p => p.id !== id);
+  state.agents   = state.agents.filter(a => a.profile !== id);
+  save(); renderAgents();
+}
+function addCampaign(id) {
+  const inp = document.getElementById('ci-' + id);
+  const v = inp.value.trim(); if (!v) return;
+  state.agents.find(a => a.id === id).campaigns.push(v);
+  inp.value = ''; save();
+  renderTags(state.agents.find(a => a.id === id));
+}
+function removeCamp(id, idx) {
+  state.agents.find(a => a.id === id).campaigns.splice(idx, 1);
+  save(); renderTags(state.agents.find(a => a.id === id));
+}
+let editingBreakId = null;
+
+function openEditBreak(id) {
+  const b = state.breaks.find(x => x.id === id);
+  if (!b) return;
+  editingBreakId = id;
+  document.getElementById('eb-est').value = b.est;
+  document.getElementById('eb-arg').value = b.arg;
+  document.getElementById('eb-agents').value = b.agents || '';
+  openModal('modal-edit-break');
+  setTimeout(() => document.getElementById('eb-est').focus(), 100);
+}
+
+function saveEditBreak() {
+  const est = document.getElementById('eb-est').value.trim();
+  const arg = document.getElementById('eb-arg').value.trim();
+  const agents = document.getElementById('eb-agents').value.trim();
+  if (!est || !arg) { alert('Fill in both times'); return; }
+  const b = state.breaks.find(x => x.id === editingBreakId);
+  b.est = est; b.arg = arg; b.agents = agents;
+  save(); closeModal('modal-edit-break'); renderBreaks();
+}
+
+function deleteBreak(id) {
+  state.breaks = state.breaks.filter(b => b.id !== id);
+  save(); renderBreaks();
+}
+
+function openModal(id)  { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.overlay').forEach(o =>
+  o.addEventListener('click', e => { if (e.target === o) o.classList.remove('open'); })
+);
+
+function openAddAgent() {
+  document.getElementById('i-aname').value = '';
+  document.getElementById('i-acamps').value = '';
+  const sel = document.getElementById('i-aprofile');
+  sel.innerHTML = state.profiles.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+  openModal('modal-agent');
+  setTimeout(() => document.getElementById('i-aname').focus(), 100);
+}
+function addAgent() {
+  const name = document.getElementById('i-aname').value.trim();
+  const profile = document.getElementById('i-aprofile').value;
+  const cStr = document.getElementById('i-acamps').value;
+  if (!name) { alert('Enter a name'); return; }
+  const campaigns = cStr ? cStr.split(',').map(s => s.trim()).filter(Boolean) : [];
+  state.agents.push({ id: nid++, name, profile, campaigns });
+  save(); closeModal('modal-agent'); renderAgents();
+}
+
+function openAddProfile() {
+  document.getElementById('i-pname').value = '';
+  openModal('modal-profile');
+  setTimeout(() => document.getElementById('i-pname').focus(), 100);
+}
+function addProfile() {
+  const name = document.getElementById('i-pname').value.trim();
+  const color = document.getElementById('i-pcolor').value;
+  if (!name) { alert('Enter a name'); return; }
+  const id = name.toLowerCase().replace(/\s+/g, '-') + '-' + Date.now();
+  state.profiles.push({ id, name, color });
+  save(); closeModal('modal-profile'); renderAgents();
+}
+
+function openAddBreak() {
+  ['i-best','i-barg','i-bagents'].forEach(id => document.getElementById(id).value = '');
+  openModal('modal-break');
+  setTimeout(() => document.getElementById('i-best').focus(), 100);
+}
+function addBreak() {
+  const est = document.getElementById('i-best').value.trim();
+  const arg = document.getElementById('i-barg').value.trim();
+  const agents = document.getElementById('i-bagents').value.trim();
+  if (!est || !arg) { alert('Fill in both times'); return; }
+  state.breaks.push({ id: nid++, est, arg, agents });
+  save(); closeModal('modal-break'); renderBreaks();
+}
+
+renderAgents();
+renderBreaks();
+
+// ── LIVE STATUS ──────────────────────────────────────────────────────────────
+const TD_URLS = {
+  at:  'https://atemwork-worker.agussyanca98.workers.dev',
+  arv: 'https://ariel-tavena-worker.agussyanca98.workers.dev',
+  aq:  'https://ariel-quotes-ll.agussyanca98.workers.dev',
+};
+let liveTimer = null;
+let countdown = 15;
+let countdownTimer = null;
+
+function setLivePulse(state) {
+  const p = document.getElementById('live-pulse-dot');
+  p.className = 'live-pulse-dot' + (state === 'active' ? ' active' : state === 'error' ? ' error' : '');
+}
+
+function startCountdown() {
+  clearInterval(countdownTimer);
+  countdown = 15;
+  countdownTimer = setInterval(() => {
+    countdown--;
+    const el = document.getElementById('live-status-text');
+    if (el) el.textContent = `Next refresh in ${countdown}s`;
+    if (countdown <= 0) {
+      clearInterval(countdownTimer);
+      fetchLive();
+    }
+  }, 1000);
+}
+
+async function fetchLive() {
+  clearInterval(countdownTimer);
+  const container = document.getElementById('live-container');
+  if (!container) return;
+  const txt = document.getElementById('live-status-text');
+  if (txt) txt.textContent = 'Refreshing...';
+  setLivePulse('');
+  container.innerHTML = '<div class="live-skeleton">' + Array(6).fill('<div class="skel-row"></div>').join('') + '</div>';
+
+  try {
+    // Fetch all 3 workers in parallel
+    var results = await Promise.allSettled([
+      fetch(TD_URLS.at,  { headers: { 'Accept': 'application/json' } }),
+      fetch(TD_URLS.arv, { headers: { 'Accept': 'application/json' } }),
+      fetch(TD_URLS.aq,  { headers: { 'Accept': 'application/json' } }),
+    ]);
+
+    var allCalls = [];
+    for (var ri = 0; ri < results.length; ri++) {
+      if (results[ri].status === 'fulfilled') {
+        var r = results[ri].value;
+        if (r.ok) {
+          var d = await r.json();
+          var calls = d.calls && Array.isArray(d.calls.calls) ? d.calls.calls
+                    : Array.isArray(d.calls) ? d.calls
+                    : Array.isArray(d) ? d : [];
+          allCalls = allCalls.concat(calls);
+        }
+      }
+    }
+
+    // Conference calls = agents connected to softphone
+    var conferenceCalls = allCalls.filter(function(c) {
+      return c.category === 'conference' && !c.ended_at;
+    });
+
+    // Active outbound with agent
+    var activeOutbound = allCalls.filter(function(c) {
+      return c.category !== 'conference' && !c.ended_at && c.agent_id;
+    });
+    var activeAgentIds = {};
+    activeOutbound.forEach(function(c) { activeAgentIds[c.agent_id] = true; });
+
+    // Build email -> status map
+    var emailToStatus = {};
+    var nameToStatus  = {};
+    conferenceCalls.forEach(function(c) {
+      var email = (c['token-email'] || c.email || '').toLowerCase();
+      var fname = (c['token-first_name'] || c.first_name || '').toLowerCase();
+      var lname = (c['token-last_name']  || c.last_name  || '').toLowerCase();
+      var qname = (c.quality_assurance_name || '').toLowerCase();
+      var onCall = activeAgentIds[c.agent_id] || false;
+      var s = { connected: true, onCall: onCall };
+      if (email) emailToStatus[email] = s;
+      if (fname && fname.length > 1) nameToStatus[fname] = s;
+      if (lname && lname.length > 1) nameToStatus[lname] = s;
+      if (qname) qname.split(' ').forEach(function(w) { if (w.length > 2) nameToStatus[w] = s; });
+    });
+
+    var agentRows = state.agents.map(function(agent) {
+      var email = agent.email ? agent.email.toLowerCase() : '';
+      var parts = agent.name.toLowerCase().split(' ');
+      var status = emailToStatus[email];
+      if (!status) {
+        for (var i = 0; i < parts.length; i++) {
+          if (nameToStatus[parts[i]]) { status = nameToStatus[parts[i]]; break; }
+        }
+      }
+      return { agent: agent, status: status || null };
+    });
+
+    agentRows.sort(function(a, b) {
+      var rank = function(r) { if (!r.status) return 2; if (r.status.onCall) return 0; return 1; };
+      return rank(a) - rank(b);
+    });
+
+    var counts = { oncall: 0, connected: 0, offline: 0 };
+    agentRows.forEach(function(r) {
+      if (!r.status) counts.offline++;
+      else if (r.status.onCall) counts.oncall++;
+      else counts.connected++;
+    });
+
+    var badge = document.getElementById('live-count');
+    if (badge) {
+      var n = counts.oncall + counts.connected;
+      badge.textContent = n + ' connected';
+      badge.className = 'live-count' + (n > 0 ? ' show' : '');
+    }
+
+    var rows = agentRows.map(function(r) {
+      var a = r.agent;
+      var profile = state.profiles.find(function(p) { return p.id === a.profile; });
+      var col = COLORS[profile ? profile.color : 'yellow'];
+      var profileBadge = profile
+        ? '<span class="profile-chip ' + (col.chip || 'chip-custom') + '" style="background:' + col.bg + ';color:' + col.text + ';border-color:' + col.border + ';padding:3px 10px;font-size:10px">' + profile.name + '</span>'
+        : '<span style="color:var(--muted)">-</span>';
+      var statusHtml;
+      if (!r.status) {
+        statusHtml = '<span class="status-offline">&#9679; Offline</span>';
+      } else if (r.status.onCall) {
+        statusHtml = '<span class="status-oncall">&#128222; On Call</span>';
+      } else {
+        statusHtml = '<span class="status-live">&#9679; Connected</span>';
+      }
+      var campaigns = a.campaigns.map(function(c) { return '<span class="ctag" style="margin:1px">' + c + '</span>'; }).join('');
+      return '<tr>' +
+        '<td><span class="td-agent-name">' + a.name + '</span></td>' +
+        '<td>' + profileBadge + '</td>' +
+        '<td>' + campaigns + '</td>' +
+        '<td>' + statusHtml + '</td>' +
+        '</tr>';
+    }).join('');
+
+    // Update summary cards
+    var oc = document.getElementById('cnt-oncall'); var oc2 = document.getElementById('dash-cnt-oncall'); if(oc2) oc2.textContent = counts.oncall;
+    var cc = document.getElementById('cnt-connected'); var cc2 = document.getElementById('dash-cnt-connected'); if(cc2) cc2.textContent = counts.connected;
+    var of = document.getElementById('cnt-offline'); var of2 = document.getElementById('dash-cnt-offline'); if(of2) of2.textContent = counts.offline;
+    if (oc) oc.textContent = counts.oncall;
+    if (cc) cc.textContent = counts.connected;
+    if (of) of.textContent = counts.offline;
+
+    container.innerHTML =
+      '<div class="live-table-wrap">' +
+        '<table class="live-table">' +
+          '<thead><tr><th>Agent</th><th>Profile</th><th>Campaigns</th><th>Status</th></tr></thead>' +
+          '<tbody>' + rows + '</tbody>' +
+        '</table>' +
+      '</div>';
+
+    setLivePulse('active');
+    var now = new Date().toLocaleTimeString();
+    if (txt) txt.textContent = 'Updated ' + now + ' · 3 profiles · auto-refreshes every 15s';
+    startCountdown();
+
+  } catch (err) {
+    setLivePulse('error');
+    container.innerHTML = '<div class="live-error">Could not connect<div class="err-detail">' + err.message + '</div></div>';
+    if (txt) txt.textContent = 'Connection failed - retrying in 15s';
+    startCountdown();
+  }
+}
+
+
+
+// ── BALANCE MONITORING ──────────────────────────────────────────────────────
+var balanceTimer = null;
+var BALANCE_THRESHOLD = 25;
+
+var BALANCE_SOURCES = [
+  { key: 'at',  url: TD_URLS.at,  elAmount: 'bal-at-amount',  elAlert: 'bal-at-alert',  elCard: 'bal-at' },
+  { key: 'arv', url: TD_URLS.arv, elAmount: 'bal-arv-amount', elAlert: 'bal-arv-alert', elCard: 'bal-arv' },
+  { key: 'aq',  url: TD_URLS.aq,  elAmount: 'bal-aq-amount',  elAlert: 'bal-aq-alert',  elCard: 'bal-aq' },
+];
+
+async function fetchBalances() {
+  clearInterval(balanceTimer);
+  var pulse = document.getElementById('balance-pulse');
+  var txt   = document.getElementById('balance-status-text');
+  if (pulse) { pulse.className = 'live-pulse-dot'; }
+  if (txt)   { txt.textContent = 'Refreshing...'; }
+
+  try {
+    var results = await Promise.allSettled(
+      BALANCE_SOURCES.map(function(s) {
+        return fetch(s.url, { headers: { 'Accept': 'application/json' } });
+      })
+    );
+
+    var anyAlert = false;
+
+    for (var i = 0; i < results.length; i++) {
+      var src = BALANCE_SOURCES[i];
+      var elAmount = document.getElementById(src.elAmount);
+      var elAlert  = document.getElementById(src.elAlert);
+      var elCard   = document.getElementById(src.elCard);
+      if (!elAmount) continue;
+
+      try {
+        if (results[i].status !== 'fulfilled') throw new Error('fetch failed');
+        var data = await results[i].value.json();
+        var bal = parseFloat(data.balance);
+
+        if (isNaN(bal)) {
+          elAmount.textContent = '—';
+          elCard.className = 'balance-card';
+          elAlert.textContent = '';
+          continue;
+        }
+
+        elAmount.textContent = '$' + bal.toFixed(2);
+
+        if (bal < 0) {
+          elCard.className = 'balance-card danger';
+          elAlert.textContent = '🚨 NEGATIVE — Top up immediately!';
+          anyAlert = true;
+        } else if (bal < BALANCE_THRESHOLD) {
+          elCard.className = 'balance-card warn';
+          elAlert.textContent = '⚠️ Low balance — below $' + BALANCE_THRESHOLD;
+          anyAlert = true;
+        } else {
+          elCard.className = 'balance-card ok';
+          elAlert.textContent = '✓ Balance OK';
+        }
+      } catch (e) {
+        elAmount.textContent = 'Error';
+        elCard.className = 'balance-card';
+        elAlert.textContent = '';
+      }
+    }
+
+    if (pulse) pulse.className = 'live-pulse-dot active';
+    var now = new Date().toLocaleTimeString();
+    if (txt) txt.textContent = (anyAlert ? '⚠️ Alert! ' : '✓ ') + 'Updated ' + now + ' · refreshes every 30s';
+
+  } catch (e) {
+    if (pulse) pulse.className = 'live-pulse-dot error';
+    if (txt)   txt.textContent = 'Error fetching balances';
+  }
+
+  balanceTimer = setTimeout(fetchBalances, 30000);
+}
+
+// ── DASHBOARD FETCH ──────────────────────────────────────────────────────────
+var dashTimer = null;
+var DASH_SOURCES = [
+  { url: TD_URLS.at,  elCard: 'dash-bal-at',  elAmount: 'dash-bal-at-amount',  elAlert: 'dash-bal-at-alert' },
+  { url: TD_URLS.arv, elCard: 'dash-bal-arv', elAmount: 'dash-bal-arv-amount', elAlert: 'dash-bal-arv-alert' },
+  { url: TD_URLS.aq,  elCard: 'dash-bal-aq',  elAmount: 'dash-bal-aq-amount',  elAlert: 'dash-bal-aq-alert' },
+];
+
+async function fetchDashboard() {
+  clearInterval(dashTimer);
+  var pulse = document.getElementById('dash-live-pulse');
+  var txt   = document.getElementById('dash-live-txt');
+  if (pulse) pulse.className = 'live-pulse-dot';
+
+  try {
+    var results = await Promise.allSettled(
+      DASH_SOURCES.map(function(s) {
+        return fetch(s.url, { headers: { 'Accept': 'application/json' } });
+      })
+    );
+
+    var allCalls = [];
+    for (var i = 0; i < results.length; i++) {
+      var src = DASH_SOURCES[i];
+      if (results[i].status !== 'fulfilled') continue;
+      var data = await results[i].value.json();
+
+      // Balance
+      var bal = parseFloat(data.balance);
+      var elAmount = document.getElementById(src.elAmount);
+      var elAlert  = document.getElementById(src.elAlert);
+      var elCard   = document.getElementById(src.elCard);
+      if (elAmount && !isNaN(bal)) {
+        elAmount.textContent = '$' + bal.toFixed(2);
+        if (bal < 0)  { elCard.className = 'balance-card danger'; elAlert.textContent = '🚨 NEGATIVE!'; }
+        else if (bal < 25) { elCard.className = 'balance-card warn'; elAlert.textContent = '⚠️ Low — below $25'; }
+        else { elCard.className = 'balance-card ok'; elAlert.textContent = '✓ OK'; }
+      }
+
+      // Calls
+      var calls = data.calls && Array.isArray(data.calls.calls) ? data.calls.calls
+                : Array.isArray(data.calls) ? data.calls : [];
+      allCalls = allCalls.concat(calls);
+    }
+
+    // Live status
+    var conferenceCalls = allCalls.filter(function(c) { return c.category === 'conference' && !c.ended_at; });
+    var activeOutbound  = allCalls.filter(function(c) { return c.category !== 'conference' && !c.ended_at && c.agent_id; });
+    var activeAgentIds = {};
+    activeOutbound.forEach(function(c) { activeAgentIds[c.agent_id] = true; });
+
+    var emailToStatus = {};
+    var nameToStatus  = {};
+    conferenceCalls.forEach(function(c) {
+      var email = (c['token-email'] || c.email || '').toLowerCase();
+      var fname = (c['token-first_name'] || c.first_name || '').toLowerCase();
+      var lname = (c['token-last_name']  || c.last_name  || '').toLowerCase();
+      var qname = (c.quality_assurance_name || '').toLowerCase();
+      var onCall = activeAgentIds[c.agent_id] || false;
+      var s = { connected: true, onCall: onCall };
+      if (email) emailToStatus[email] = s;
+      if (fname && fname.length > 1) nameToStatus[fname] = s;
+      if (lname && lname.length > 1) nameToStatus[lname] = s;
+      if (qname) qname.split(' ').forEach(function(w) { if (w.length > 2) nameToStatus[w] = s; });
+    });
+
+    var agentRows = state.agents.map(function(agent) {
+      var email = agent.email ? agent.email.toLowerCase() : '';
+      var parts = agent.name.toLowerCase().split(' ');
+      var status = emailToStatus[email];
+      if (!status) { for (var i = 0; i < parts.length; i++) { if (nameToStatus[parts[i]]) { status = nameToStatus[parts[i]]; break; } } }
+      return { agent: agent, status: status || null };
+    });
+
+    agentRows.sort(function(a, b) {
+      var rank = function(r) { if (!r.status) return 2; if (r.status.onCall) return 0; return 1; };
+      return rank(a) - rank(b);
+    });
+
+    var counts = { oncall: 0, connected: 0, offline: 0 };
+    agentRows.forEach(function(r) {
+      if (!r.status) counts.offline++;
+      else if (r.status.onCall) counts.oncall++;
+      else counts.connected++;
+    });
+
+    var oc = document.getElementById('dash-cnt-oncall');
+    var cc = document.getElementById('dash-cnt-connected');
+    var of = document.getElementById('dash-cnt-offline');
+    if (oc) oc.textContent = counts.oncall;
+    if (cc) cc.textContent = counts.connected;
+    if (of) of.textContent = counts.offline;
+
+    var rows = agentRows.map(function(r) {
+      var a = r.agent;
+      var profile = state.profiles.find(function(p) { return p.id === a.profile; });
+      var col = COLORS[profile ? profile.color : 'yellow'];
+      var profileBadge = profile
+        ? '<span class="profile-chip ' + (col.chip || 'chip-custom') + '" style="background:' + col.bg + ';color:' + col.text + ';border-color:' + col.border + ';padding:3px 10px;font-size:10px">' + profile.name + '</span>'
+        : '<span style="color:var(--muted)">-</span>';
+      var statusHtml;
+      if (!r.status) statusHtml = '<span class="status-offline">&#9679; Offline</span>';
+      else if (r.status.onCall) statusHtml = '<span class="status-oncall">&#128222; On Call</span>';
+      else statusHtml = '<span class="status-live">&#9679; Connected</span>';
+      var campaigns = a.campaigns.map(function(c) { return '<span class="ctag" style="margin:1px">' + c + '</span>'; }).join('');
+      return '<tr>' +
+        '<td><span class="td-agent-name">' + a.name + '</span></td>' +
+        '<td>' + profileBadge + '</td>' +
+        '<td>' + campaigns + '</td>' +
+        '<td>' + statusHtml + '</td>' +
+        '</tr>';
+    }).join('');
+
+    var container = document.getElementById('dash-live-container');
+    if (container) {
+      container.innerHTML =
+        '<div class="live-table-wrap">' +
+          '<table class="live-table">' +
+            '<thead><tr><th>Agent</th><th>Profile</th><th>Campaigns</th><th>Status</th></tr></thead>' +
+            '<tbody>' + rows + '</tbody>' +
+          '</table>' +
+        '</div>';
+    }
+
+    if (pulse) pulse.className = 'live-pulse-dot active';
+    var now = new Date().toLocaleTimeString();
+    if (txt) txt.textContent = 'Updated ' + now;
+
+    // Also sync balance tab cards
+    BALANCE_SOURCES.forEach(function(bs, i) {
+      var data2 = null; // balance tab will refresh on its own
+    });
+
+  } catch (err) {
+    if (pulse) pulse.className = 'live-pulse-dot error';
+    if (txt) txt.textContent = 'Error';
+  }
+
+  dashTimer = setTimeout(fetchDashboard, 15000);
+}
+
+document.querySelectorAll('.tab').forEach(function(el) {
+  el.addEventListener('click', function() {
+    var tab = el.dataset.tab;
+    document.querySelectorAll('.tab').forEach(function(x) { x.classList.remove('active'); });
+    document.querySelectorAll('.pane').forEach(function(x) { x.classList.remove('active'); });
+    el.classList.add('active');
+    document.getElementById('pane-' + tab).classList.add('active');
+    if (tab === 'live') fetchLive();
+    else if (tab === 'balance') fetchBalances();
+    else if (tab === 'dashboard') fetchDashboard();
+    else { clearInterval(countdownTimer); clearInterval(balanceTimer); }
+  });
+});
+
+// Auto-load dashboard on start
+fetchDashboard();
+
+
 </script>
 </body>
 </html>
