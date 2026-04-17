@@ -1054,7 +1054,8 @@ let countdown = 15;
 let countdownTimer = null;
 
 function setLivePulse(state) {
-  const p = document.getElementById('live-pulse-dot');
+  var p = document.getElementById('live-pulse-dot');
+  if (!p) return;
   p.className = 'live-pulse-dot' + (state === 'active' ? ' active' : state === 'error' ? ' error' : '');
 }
 
@@ -1194,14 +1195,14 @@ async function fetchLive() {
     if (cc) cc.textContent = counts.connected;
     if (of) of.textContent = counts.offline;
 
-    container.innerHTML =
+    var tableHTML =
       '<div class="live-table-wrap">' +
         '<table class="live-table">' +
           '<thead><tr><th>Agent</th><th>Profile</th><th>Campaigns</th><th>Status</th></tr></thead>' +
           '<tbody>' + rows + '</tbody>' +
         '</table>' +
       '</div>';
-
+    container.innerHTML = tableHTML;
     setLivePulse('active');
     var now = new Date().toLocaleTimeString();
     if (txt) txt.textContent = 'Updated ' + now + ' · 3 profiles · auto-refreshes every 15s';
@@ -1443,10 +1444,22 @@ document.querySelectorAll('.tab').forEach(function(el) {
     document.querySelectorAll('.pane').forEach(function(x) { x.classList.remove('active'); });
     el.classList.add('active');
     document.getElementById('pane-' + tab).classList.add('active');
-    if (tab === 'live') fetchLive();
-    else if (tab === 'balance') fetchBalances();
-    else if (tab === 'dashboard') fetchDashboard();
-    else { clearInterval(countdownTimer); clearInterval(balanceTimer); }
+    if (tab === 'live') {
+      clearInterval(dashTimer);
+      fetchLive();
+    } else if (tab === 'balance') {
+      clearInterval(dashTimer);
+      clearInterval(countdownTimer);
+      fetchBalances();
+    } else if (tab === 'dashboard') {
+      clearInterval(countdownTimer);
+      clearInterval(balanceTimer);
+      fetchDashboard();
+    } else {
+      clearInterval(countdownTimer);
+      clearInterval(balanceTimer);
+      clearInterval(dashTimer);
+    }
   });
 });
 
