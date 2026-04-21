@@ -1535,17 +1535,28 @@ function trDateStr(d) {
 }
 
 // Merge today's fetched transfers into localStorage store
-// store = { "YYYY-MM-DD": { "AgentName": count, ... }, ... }
+// store = { "YYYY-MM-DD": { agents: { "Name": count }, ids: [id1, id2, ...] }, ... }
 function trMergeDay(calls, dateStr) {
   var store = trLoad();
-  // Reset today's entry fresh every fetch (prevents double counting on refresh)
-  store[dateStr] = {};
+  // Migrate old format if needed
+  if (store[dateStr] && !store[dateStr].ids) {
+    store[dateStr] = { agents: store[dateStr], ids: [] };
+  }
+  if (!store[dateStr]) store[dateStr] = { agents: {}, ids: [] };
+
+  var seenIds = {};
+  (store[dateStr].ids || []).forEach(function(id) { seenIds[id] = true; });
+
   calls.forEach(function(c) {
+    if (seenIds[c.id]) return; // Already counted, skip
+    seenIds[c.id] = true;
+    store[dateStr].ids.push(c.id);
     var name = c.quality_assurance_name;
     if (!name) return;
     name = name.trim();
-    store[dateStr][name] = (store[dateStr][name] || 0) + 1;
+    store[dateStr].agents[name] = (store[dateStr].agents[name] || 0) + 1;
   });
+
   // Prune entries older than 31 days
   var cutoff = trDateStr(new Date(Date.now() - 31*86400000));
   Object.keys(store).forEach(function(d) { if (d < cutoff) delete store[d]; });
@@ -1559,9 +1570,11 @@ function trBuildFromStore(store, days) {
   var agentMap = {};
   Object.keys(store).forEach(function(dateStr) {
     if (dateStr < cutoff) return;
-    var day = store[dateStr];
-    Object.keys(day).forEach(function(name) {
-      agentMap[name] = (agentMap[name] || 0) + day[name];
+    var entry = store[dateStr];
+    // Support both old format {name:count} and new format {agents:{}, ids:[]}
+    var agents = entry.agents !== undefined ? entry.agents : entry;
+    Object.keys(agents).forEach(function(name) {
+      agentMap[name] = (agentMap[name] || 0) + agents[name];
     });
   });
   return agentMap;
