@@ -1519,8 +1519,53 @@ async function fetchDashboard() {
 // ── TRANSFERS ─────────────────────────────────────────────────────────────
 var trTimer     = null;
 var trPeriod    = 'day';
-var trCache     = { day: [], week: [], month: [] };
 var trLoaded    = false;
+var TR_STORE_KEY = 'td_transfers_v2';
+
+// Storage helpers
+function trLoad() {
+  try { return JSON.parse(localStorage.getItem(TR_STORE_KEY) || '{}'); } catch(e) { return {}; }
+}
+function trSave(store) {
+  try { localStorage.setItem(TR_STORE_KEY, JSON.stringify(store)); } catch(e) {}
+}
+function trDateStr(d) {
+  // Returns YYYY-MM-DD in local time
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+
+// Merge today's fetched transfers into localStorage store
+// store = { "YYYY-MM-DD": { "AgentName": count, ... }, ... }
+function trMergeDay(calls, dateStr) {
+  var store = trLoad();
+  // Reset today's entry fresh every fetch (prevents double counting on refresh)
+  store[dateStr] = {};
+  calls.forEach(function(c) {
+    var name = c.quality_assurance_name;
+    if (!name) return;
+    name = name.trim();
+    store[dateStr][name] = (store[dateStr][name] || 0) + 1;
+  });
+  // Prune entries older than 31 days
+  var cutoff = trDateStr(new Date(Date.now() - 31*86400000));
+  Object.keys(store).forEach(function(d) { if (d < cutoff) delete store[d]; });
+  trSave(store);
+  return store;
+}
+
+// Build leaderboard from store for given period
+function trBuildFromStore(store, days) {
+  var cutoff = trDateStr(new Date(Date.now() - (days-1)*86400000));
+  var agentMap = {};
+  Object.keys(store).forEach(function(dateStr) {
+    if (dateStr < cutoff) return;
+    var day = store[dateStr];
+    Object.keys(day).forEach(function(name) {
+      agentMap[name] = (agentMap[name] || 0) + day[name];
+    });
+  });
+  return agentMap;
+}
 
 function setPeriod(p) {
   trPeriod = p;
@@ -1544,45 +1589,42 @@ async function fetchTransfers() {
       fetch(TD_URLS.aq,  { headers: { Accept: 'application/json' } }),
     ]);
 
-    // Filter: only real agent transfers (have name + agent_id + correct disposition)
-    function filterReal(arr) {
-      if (!Array.isArray(arr)) return [];
-      var seen = {};
-      return arr.filter(function(c) {
-        if (!c.quality_assurance_name || !c.agent_id) return false;
-        if (c.disposition_key && c.disposition_key !== 'transferred') return false;
-        // dedupe by call id across workers
-        if (seen[c.id]) return false;
-        seen[c.id] = true;
-        return true;
-      });
-    }
-
-    var rawDay = [], rawWeek = [], rawMonth = [];
-
+    // Collect today's transfers from all 3 workers, deduplicate by call id
+    var seen = {};
+    var todayCalls = [];
     for (var i = 0; i < results.length; i++) {
       if (results[i].status !== 'fulfilled') continue;
       var data = await results[i].value.json();
       var tr = data.transfers;
       if (!tr) continue;
-      if (Array.isArray(tr.day))   rawDay   = rawDay.concat(tr.day);
-      if (Array.isArray(tr.week))  rawWeek  = rawWeek.concat(tr.week);
-      if (Array.isArray(tr.month)) rawMonth = rawMonth.concat(tr.month);
+      var dayArr = Array.isArray(tr.day) ? tr.day : [];
+      dayArr.forEach(function(c) {
+        if (!c.quality_assurance_name || !c.agent_id) return;
+        if (c.disposition_key && c.disposition_key !== 'transferred') return;
+        if (seen[c.id]) return;
+        seen[c.id] = true;
+        todayCalls.push(c);
+      });
     }
 
-    trCache = {
-      day:   filterReal(rawDay),
-      week:  filterReal(rawWeek),
-      month: filterReal(rawMonth),
-    };
+    // Merge into localStorage
+    var todayStr = trDateStr(new Date());
+    var store = trMergeDay(todayCalls, todayStr);
+
     trLoaded = true;
 
     if (pulse) pulse.className = 'pulse active';
     var now = new Date().toLocaleTimeString();
-    if (txt) txt.textContent = 'Updated ' + now + ' · ' +
-      trCache.day.length + ' today / ' +
-      trCache.week.length + ' week / ' +
-      trCache.month.length + ' month';
+
+    // Build counts for status bar
+    var dayMap   = trBuildFromStore(store, 1);
+    var weekMap  = trBuildFromStore(store, 7);
+    var monthMap = trBuildFromStore(store, 30);
+    var dayTotal   = Object.values(dayMap).reduce(function(a,b){return a+b;}, 0);
+    var weekTotal  = Object.values(weekMap).reduce(function(a,b){return a+b;}, 0);
+    var monthTotal = Object.values(monthMap).reduce(function(a,b){return a+b;}, 0);
+
+    if (txt) txt.textContent = 'Updated ' + now + ' · ' + dayTotal + ' today / ' + weekTotal + ' week / ' + monthTotal + ' month';
 
     renderLeaderboard();
 
@@ -1595,28 +1637,18 @@ async function fetchTransfers() {
 }
 
 function renderLeaderboard() {
-  var calls = trCache[trPeriod] || [];
+  var store = trLoad();
+  var days  = trPeriod === 'day' ? 1 : trPeriod === 'week' ? 7 : 30;
+  var agentMap = trBuildFromStore(store, days);
 
-  // Count transfers per agent using quality_assurance_name + agent_id
-  var agentMap = {};
-  calls.forEach(function(c) {
-    var name = c.quality_assurance_name || c['token-first_name'] || null;
-    if (!name) return;
-    var key = name.trim();
-    if (!agentMap[key]) {
-      agentMap[key] = { name: key, count: 0, agentId: c.agent_id };
-    }
-    agentMap[key].count++;
-  });
+  var rows = Object.keys(agentMap).map(function(name) {
+    return { name: name, count: agentMap[name] };
+  }).sort(function(a, b) { return b.count - a.count; });
 
-  // Match to known agents for profile info
-  var rows = Object.values(agentMap).sort(function(a, b) { return b.count - a.count; });
-
-  // Summary — only named agent transfers
-  var namedCalls = calls.filter(function(c) { return c.quality_assurance_name && c.quality_assurance_name.trim(); });
-  var total = namedCalls.length;
-  var active = rows.length;
+  var total   = rows.reduce(function(s, r) { return s + r.count; }, 0);
+  var active  = rows.length;
   var topCount = rows.length > 0 ? rows[0].count : 0;
+
   var elTotal   = document.getElementById('tr-total');
   var elActive  = document.getElementById('tr-agents-active');
   var elTopC    = document.getElementById('tr-top-count');
@@ -1625,7 +1657,6 @@ function renderLeaderboard() {
   if (elTopC)   elTopC.textContent   = topCount;
 
   var max = rows.length > 0 ? rows[0].count : 1;
-
   var lb = document.getElementById('tr-leaderboard');
   if (!lb) return;
 
@@ -1640,7 +1671,6 @@ function renderLeaderboard() {
     var rankClass = rank === 1 ? 'rank-1' : rank === 2 ? 'rank-2' : rank === 3 ? 'rank-3' : '';
     var rankIcon  = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : rank;
 
-    // Find profile from state
     var agent = state.agents.find(function(a) {
       return a.name.toLowerCase().indexOf(r.name.toLowerCase().split(' ')[0]) !== -1
           || r.name.toLowerCase().indexOf(a.name.toLowerCase().split(' ')[0]) !== -1;
